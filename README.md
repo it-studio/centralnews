@@ -1,17 +1,17 @@
 # CentralNews API
-API knihovna pro práci se systémem CentralNews.
+API knihovna pro prÃ¡ci se systÃ©mem CentralNews.
 
 # Instalace
 Composer: ```composer require itstudiocz/centralnews-api-php```
 
 
-# Pøíklady pouití
-## Vytvoøení instance klienta
+# PÅ™Ã­klady pouÅ¾itÃ­
+## VytvoÅ™enÃ­ instance klienta
 ```php
 $client = new CentralNews\Service\Client;
 
 $client->setServiceUrl('http://centralnews.itstudio.cz/ws/cnews_import');
-$client->setApiKey('Váš API klíè');
-$client->setUser('Váš identifikátor');
-$client->setPassword('Vaše heslo');
+$client->setApiKey('VÃ¡Å¡ API klÃ­Ä');
+$client->setUser('VÃ¡Å¡ identifikÃ¡tor');
+$client->setPassword('VaÅ¡e heslo');
 ```
