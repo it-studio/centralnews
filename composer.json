@@ -1,0 +1,23 @@
+{
+    "name": "itstudiocz/centralnews-api-php",
+    "description": "API knihovna pro praci se systemem CentralNews",
+    "authors": [
+        {
+            "name": "Michal Marek",
+            "email": "marek@itstudio.cz"
+        },
+        {
+            "name": "Petr Gala",
+            "email": "gala@itstudio.cz"
+        }
+    ],
+    "require": {
+        "fergusean/nusoap": "0.9.*"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "CentralNews\\": "src/CentralNews/"
+        }
+    }
+}
