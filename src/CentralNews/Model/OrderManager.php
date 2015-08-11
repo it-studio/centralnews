@@ -83,11 +83,20 @@ class OrderManager extends Manager
 				$maincategory->appendChild($xml->createCDATASection($product->getMaincategory()));
 				$productNode->appendChild($maincategory);
 
-				$price = $xml->createElement("price");
+				$price = $xml->createElement("price_item");
 				$price->appendChild($xml->createCDATASection($product->getPrice()));
 				$productNode->appendChild($price);
 
-				$products->appendChild($productNode);
+                $priceSum = $xml->createElement("price_sum");
+                $priceSum->appendChild($xml->createCDATASection($product->getPriceSum()));
+                $productNode->appendChild($priceSum);
+
+                $count = $xml->createElement("count");
+                $count->appendChild($xml->createCDATASection($product->getCount()));
+                $productNode->appendChild($count);
+
+
+                $products->appendChild($productNode);
 			}
 
 			$element->appendChild($products);

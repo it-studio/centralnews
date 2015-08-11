@@ -10,6 +10,8 @@ class Product
 	protected $manufacturer = '';
 	protected $maincategory = '';
 	protected $price = '';
+    protected $priceSum = '';
+    protected $count = '';
 	protected $url = '';
 	protected $image = '';
 	protected $description = '';
@@ -70,6 +72,28 @@ class Product
 		$this->price = $price;
 		return $this;
 	}
+
+    public function getPriceSum()
+    {
+        return $this->priceSum;
+    }
+
+    public function setPriceSum($priceSum)
+    {
+        $this->priceSum = $priceSum;
+        return $this;
+    }
+
+    public function getCount()
+    {
+        return $this->count;
+    }
+
+    public function setCount($count)
+    {
+        $this->count = $count;
+        return $this;
+    }
 	
 	public function getUrl()
 	{
