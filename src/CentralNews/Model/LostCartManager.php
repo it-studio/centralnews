@@ -2,7 +2,6 @@
 
 namespace CentralNews\Model;
 
-use CentralNews\Service\Client;
 use CentralNews\Service\Response;
 use CentralNews\Entity\LostCart;
 use CentralNews\Entity\Discount;
@@ -11,13 +10,7 @@ class LostCartManager extends Manager
 {
     const BUY_TEXT = 'Koupit';
 
-    protected $centralNewsApi = null;
     protected $debug = false;
-
-    public function __construct(Client $centralNewsApi)
-    {
-        $this->centralNewsApi = $centralNewsApi;
-    }
 
     public function sendCart(LostCart $lostCart)
     {
@@ -25,7 +18,7 @@ class LostCartManager extends Manager
         $encodedXmlData = base64_encode($orderXml);
 
         $timestamp = null;
-        if($this->getDebug()) {
+        if ($this->getDebug()) {
             $timestamp = microtime();
         }
 
@@ -47,12 +40,12 @@ class LostCartManager extends Manager
         $xml->startDocument('1.0', 'UTF-8');
         $xml->startElement("event");
 
-        if($lostCart->getLostCartUrl()) {
+        if ($lostCart->getLostCartUrl()) {
 
             $xml->writeAttribute('RESTORE_CART_URL', $lostCart->getLostCartUrl());
             // slevovy kupon
             $discountCoupon = $lostCart->getDiscountCoupon();
-            if($discountCoupon instanceof Discount) {
+            if ($discountCoupon instanceof Discount) {
                 $xml->writeAttribute('COUPON_CODE', $discountCoupon->getCode());
                 $xml->writeAttribute('COUPON_VALUE', $discountCoupon->getValue());
                 $xml->writeAttribute('COUPON_VALIDITY', $this->dayToDate($discountCoupon->getValidityDay()));
@@ -61,7 +54,7 @@ class LostCartManager extends Manager
         }
 
         $xml->startElement("products");
-        foreach($lostCart->getProducts() as $product) {
+        foreach ($lostCart->getProducts() as $product) {
 
             $xml->startElement("product");
 

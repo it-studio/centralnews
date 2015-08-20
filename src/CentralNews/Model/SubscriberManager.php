@@ -2,20 +2,19 @@
 
 namespace CentralNews\Model;
 
-use CentralNews\Service\Client;
 use CentralNews\Service\Response;
 use CentralNews\Entity\Subscriber;
+use CentralNews\Exception;
 
 class SubscriberManager extends Manager
 {
-    protected $centralNewsApi = null;
 
-    public function __construct(Client $centralNewsApi)
-    {
-        $this->centralNewsApi = $centralNewsApi;
-    }
-
-    // Nacte odberatele z dane skupiny na zaklade jeho emailu
+    /**
+     * Nacte odberatele z dane skupiny na zaklade jeho emailu
+     * @param type $email
+     * @throws \Exception
+     * @return \CentralNews\Entity\Subscriber
+     */
     public function getSubscriberByEmail($email)
     {
         $param = array(
@@ -25,25 +24,29 @@ class SubscriberManager extends Manager
 
         $rawResponse = $this->centralNewsApi->createApiClient()->call('get_subscriber', $param, '', '', $this->centralNewsApi->getSoapHeaders());
         $response = new Response($rawResponse);
-        if($response->isError()) {
-            throw new \Exception($response->getMessage());
+        if ($response->isError()) {
+            throw new Exception\Exception($response->getMessage());
         }
 
         // vraceny subscriber. pokud neni v odpovedi xml s daty subscribera (pokud nebyl v CN nalezen), vracime null
         $subscriber = null;
         $xmlSubscriber = $response->getResult();
 
-        if($xmlSubscriber instanceof \SimpleXMLElement) {
+        if ($xmlSubscriber instanceof \SimpleXMLElement) {
             $subscriber = Subscriber::createFromXml($xmlSubscriber);
         }
 
         return $subscriber;
     }
 
-    // Aktualizuje udaje o uzivateli v CN. Pokud neexistuje, vytvori se.
-    public function updateSubscriber(Subscriber $subscriber)
+    /**
+     * Aktualizuje udaje o uzivateli v CN. Pokud neexistuje, vytvori se.
+     * @param Subscriber $subscriber
+     * @return \CentralNews\Service\Response
+     */
+    public function saveSubscriber(Subscriber $subscriber)
     {
-        $xmlData = $this->getXml($subscriber);
+        $xmlData = $this->createXml($subscriber);
         $encodedXmlData = base64_encode($xmlData);
 
         $param = array(
@@ -55,7 +58,10 @@ class SubscriberManager extends Manager
         return new Response($rawResponse);
     }
 
-    // smaze odberatele z CentralNews
+    /**
+     * @param \CentralNews\Service\Subscriber|email $subscriber
+     * @return \CentralNews\Service\Response
+     */
     public function deleteSubscriber($subscriber)
     {
         $email = $subscriber instanceof Subscriber ? $subscriber->getEmail() : $subscriber;
@@ -68,7 +74,11 @@ class SubscriberManager extends Manager
         return new Response($rawResponse);
     }
 
-    protected function getXml(Subscriber $subscriber)
+    /**
+     * @param \CentralNews\Service\Subscriber $subscriber
+     * @return string|false
+     */
+    protected function createXml(Subscriber $subscriber)
     {
         $xml = new \XMLWriter();
         $xml->openMemory();

@@ -18,13 +18,13 @@ class Response
 
     public function __construct($rawResponse)
     {
-        if(is_array($rawResponse)) {
+        if (is_array($rawResponse)) {
 
             $this->setStatus(self::STATUS_ERROR);
             $this->setMessage($rawResponse['faultstring']);
 
             throw new \Exception($rawResponse['faultstring']);
-        } elseif(!empty($rawResponse)) {
+        } elseif (!empty($rawResponse)) {
 
             try {
                 $xml = new \SimpleXMLElement(base64_decode($rawResponse));
@@ -35,7 +35,7 @@ class Response
                 $this->setErrors($xml->errors[0]);
 
                 $this->parseErrors($xml->errors[0]);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 throw new \Exception("chyba při parsování odpovědi");
             }
         } else {
@@ -45,33 +45,33 @@ class Response
 
     protected function parseErrors($xml)
     {
-        foreach($xml->subscriber as $subscrNode) {
+        foreach ($xml->subscriber as $subscrNode) {
 
             $attrs = $subscrNode->attributes();
             $email = $attrs['email'];
 
             $errFields = array();
 
-            foreach($subscrNode->error as $errNode) {
+            foreach ($subscrNode->error as $errNode) {
 
                 $errAttrs = $errNode->attributes();
 
-                if(!empty($errAttrs['errorField'])) {
+                if (!empty($errAttrs['errorField'])) {
                     $errFields[] = (string) $errAttrs['errorField'];
                 } else {
                     $this->addErrorForSubscriber((string) $errAttrs['msg'], (string) $email);
                 }
             }
-            if(!empty($errFields)) {
+            if (!empty($errFields)) {
                 $this->addErrorForSubscriber(sprintf("chybně vyplněné pole %s", implode(", ", $errFields)), (string) $email);
             }
         }
 
-        foreach($xml->order as $orderNode) {
+        foreach ($xml->order as $orderNode) {
 
             $attrs = $orderNode->attributes();
 
-            foreach($orderNode->error as $errNode) {
+            foreach ($orderNode->error as $errNode) {
                 $errAttrs = $errNode->attributes();
                 $this->addErrorForOrders((string) $errAttrs['msg'], (string) $attrs['count']);
             }

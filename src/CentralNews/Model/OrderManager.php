@@ -2,24 +2,11 @@
 
 namespace CentralNews\Model;
 
-use CentralNews\Service\Client;
 use CentralNews\Service\Response;
 use CentralNews\Entity\Order;
 
 class OrderManager extends Manager
 {
-    /**
-     * @var Client
-     */
-    protected $centralNewsApi;
-
-    /**
-     * @param Client $centralNewsApi
-     */
-    public function __construct(Client $centralNewsApi)
-    {
-        $this->centralNewsApi = $centralNewsApi;
-    }
 
     /**
      * @param Order[] $orders
@@ -60,7 +47,7 @@ class OrderManager extends Manager
         $xml->formatOutput = true;
         $root = $xml->appendChild($xml->createElement("orders"));
 
-        foreach($orders as $order) {
+        foreach ($orders as $order) {
             $element = $root->appendChild($xml->createElement("order"));
 
             $orderNumber = $xml->createElement("order_number");
@@ -85,7 +72,7 @@ class OrderManager extends Manager
 
             $products = $xml->createElement("products");
 
-            foreach($order->getOrderProducts() as $product) {
+            foreach ($order->getOrderProducts() as $product) {
                 $productNode = $xml->createElement("product");
 
                 $id = $xml->createElement("id");

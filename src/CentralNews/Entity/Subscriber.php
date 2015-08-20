@@ -20,7 +20,7 @@ class Subscriber
 
     public function __construct($email)
     {
-        if(empty($email)) {
+        if (empty($email)) {
             throw new Exception(gettext("neznámý email odběratele"));
         }
         $this->setEmail($email);
@@ -30,7 +30,7 @@ class Subscriber
     {
         $subscriberData = array();
 
-        foreach($simpleXmlData->subscriber[0]->attributes() as $key => $value) {
+        foreach ($simpleXmlData->subscriber[0]->attributes() as $key => $value) {
             $subscriberData[$key] = (string) $value;
         }
 
@@ -41,31 +41,31 @@ class Subscriber
     {
         $subscriber = new self($subscriberData['email']);
 
-        if(isset($subscriberData['firstname'])) {
+        if (isset($subscriberData['firstname'])) {
             $subscriber->setFirstname($subscriberData['firstname']);
         }
 
-        if(isset($subscriberData['surname'])) {
+        if (isset($subscriberData['surname'])) {
             $subscriber->setSurname($subscriberData['surname']);
         }
 
-        if(isset($subscriberData['address'])) {
+        if (isset($subscriberData['address'])) {
             $subscriber->setAddress($subscriberData['address']);
         }
 
-        if(isset($subscriberData['city'])) {
+        if (isset($subscriberData['city'])) {
             $subscriber->setCity($subscriberData['city']);
         }
 
-        if(isset($subscriberData['zip_code'])) {
+        if (isset($subscriberData['zip_code'])) {
             $subscriber->setZipCode($subscriberData['zip_code']);
         }
 
-        if(isset($subscriberData['company'])) {
+        if (isset($subscriberData['company'])) {
             $subscriber->setCompany($subscriberData['company']);
         }
 
-        if(isset($subscriberData['phone_number'])) {
+        if (isset($subscriberData['phone_number'])) {
             $subscriber->setPhoneNumber($subscriberData['phone_number']);
         }
 
@@ -163,7 +163,7 @@ class Subscriber
 
     public function getStatusActivityString()
     {
-        if(!is_null($this->getStatusActivity())) {
+        if (!is_null($this->getStatusActivity())) {
             return $this->getStatusActivity() ? self::ACTIVE : self::LOGOUT;
         }
         return null;
