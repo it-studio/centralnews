@@ -5,6 +5,7 @@ namespace CentralNews\Model;
 use CentralNews\Exception;
 use CentralNews\Service\Response;
 use CentralNews\Service\Request;
+use CentralNews\Service\Client;
 
 abstract class Manager
 {
@@ -58,7 +59,7 @@ abstract class Manager
      */
     public function sendRequest(Request $request)
     {
-        return new Response($this->centralNewsApi->createApiClient()->call($method, $param, $x, $y, $headers));
+        return new Response($this->centralNewsApi->createApiClient()->call($request->getOperation(), $request->getParams(), $request->getNamespace(), $request->getAction(), $request->getHeaders()));
     }
 
 }
