@@ -4,6 +4,9 @@ namespace CentralNews\Entity;
 
 class Subscriber
 {
+	const ACTIVE = 'aktivni';
+	const LOGOUT = 'odhlaseny';
+
 	protected $email = "";
 	protected $firstname = null;
 	protected $surname = null;
@@ -161,7 +164,7 @@ class Subscriber
 	public function getStatusActivityString()
 	{
 		if (!is_null($this->getStatusActivity())) {
-			return $this->getStatusActivity() ? "aktivni" : "odhlaseny";
+			return $this->getStatusActivity() ? self::ACTIVE : self::LOGOUT;
 		}
 		return  null;
 	}
