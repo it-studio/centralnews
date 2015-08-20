@@ -4,88 +4,86 @@ namespace CentralNews\Model;
 
 use CentralNews\Service\Client;
 use CentralNews\Service\Response;
-
 use CentralNews\Entity\Order;
 
 class OrderManager extends Manager
 {
-	protected $centralNewsApi = null;
-	protected $orders = array();
+    protected $centralNewsApi = null;
+    protected $orders = array();
 
-	public function __construct(Client $centralNewsApi)
-	{
-		$this->centralNewsApi = $centralNewsApi;
-	}
+    public function __construct(Client $centralNewsApi)
+    {
+        $this->centralNewsApi = $centralNewsApi;
+    }
 
-	public function sendOrder()
-	{
-		$xmlOrders = $this->getXml();
-		$encodedXmlData = base64_encode($xmlOrders);
+    public function sendOrders()
+    {
+        $xmlOrders = $this->getXml();
+        $encodedXmlData = base64_encode($xmlOrders);
 
-		$param = array(
-			'group_id'	=> $this->getIdGroup(),
-			'orders'	=> $encodedXmlData
-		);
+        $param = array(
+            'group_id' => $this->getIdGroup(),
+            'orders' => $encodedXmlData
+        );
 
-		$rawResponse = $this->centralNewsApi->createApiClient()->call('import_orders', $param, '', '', $this->centralNewsApi->getSoapHeaders());
-		return new Response($rawResponse);
-	}
-	
-	protected function getXml()
-	{
-		$xml = new \DOMDocument();
-		$xml->formatOutput = true;
-		$root = $xml->appendChild($xml->createElement("orders"));
+        $rawResponse = $this->centralNewsApi->createApiClient()->call('import_orders', $param, '', '', $this->centralNewsApi->getSoapHeaders());
+        return new Response($rawResponse);
+    }
 
-		foreach($this->getOrders() as $order)
-		{
-			$element = $root->appendChild($xml->createElement("order"));
+    protected function getXml()
+    {
+        $xml = new \DOMDocument();
+        $xml->formatOutput = true;
+        $root = $xml->appendChild($xml->createElement("orders"));
 
-			$orderNumber = $xml->createElement("order_number");
-			$orderNumber->appendChild($xml->createCDATASection($order->getOrderNumber()));
-			$element->appendChild($orderNumber);
+        foreach($this->getOrders() as $order) {
+            $element = $root->appendChild($xml->createElement("order"));
 
-			$orderPrice = $xml->createElement("total_price");
-			$orderPrice->appendChild($xml->createCDATASection($order->getOrderTotalPrice()));
-			$element->appendChild($orderPrice);
+            $orderNumber = $xml->createElement("order_number");
+            $orderNumber->appendChild($xml->createCDATASection($order->getOrderNumber()));
+            $element->appendChild($orderNumber);
 
-			$customerEmail = $xml->createElement("customer_email");
-			$customerEmail->appendChild($xml->createCDATASection($order->getCustomerEmail()));
-			$element->appendChild($customerEmail);
+            $orderPrice = $xml->createElement("total_price");
+            $orderPrice->appendChild($xml->createCDATASection($order->getOrderTotalPrice()));
+            $element->appendChild($orderPrice);
 
-			$created = $xml->createElement("created");
-			$created->appendChild($xml->createCDATASection($order->getOrderCreated()));
-			$element->appendChild($created);
+            $customerEmail = $xml->createElement("customer_email");
+            $customerEmail->appendChild($xml->createCDATASection($order->getCustomerEmail()));
+            $element->appendChild($customerEmail);
 
-			$accept = $xml->createElement("accept_newsletters");
-			$accept->appendChild($xml->createCDATASection($order->getAcceptNewsletters()));
-			$element->appendChild($accept);
+            $created = $xml->createElement("created");
+            $created->appendChild($xml->createCDATASection($order->getOrderCreated()));
+            $element->appendChild($created);
 
-			$products = $xml->createElement("products");
+            $accept = $xml->createElement("accept_newsletters");
+            $accept->appendChild($xml->createCDATASection($order->getAcceptNewsletters()));
+            $element->appendChild($accept);
 
-			foreach($order->getOrderProducts() as $product) {
-				
-				$productNode = $xml->createElement("product");
+            $products = $xml->createElement("products");
 
-				$id = $xml->createElement("id");
-				$id->appendChild($xml->createCDATASection($product->getId()));
-				$productNode->appendChild($id);
+            foreach($order->getOrderProducts() as $product) {
 
-				$name = $xml->createElement("name");
-				$name->appendChild($xml->createCDATASection($product->getName()));
-				$productNode->appendChild($name);
+                $productNode = $xml->createElement("product");
 
-				$manufacturer = $xml->createElement("manufacturer");
-				$manufacturer->appendChild($xml->createCDATASection($product->getManufacturer()));
-				$productNode->appendChild($manufacturer);
+                $id = $xml->createElement("id");
+                $id->appendChild($xml->createCDATASection($product->getId()));
+                $productNode->appendChild($id);
 
-				$maincategory = $xml->createElement("maincategory");
-				$maincategory->appendChild($xml->createCDATASection($product->getMaincategory()));
-				$productNode->appendChild($maincategory);
+                $name = $xml->createElement("name");
+                $name->appendChild($xml->createCDATASection($product->getName()));
+                $productNode->appendChild($name);
 
-				$price = $xml->createElement("price_item");
-				$price->appendChild($xml->createCDATASection($product->getPrice()));
-				$productNode->appendChild($price);
+                $manufacturer = $xml->createElement("manufacturer");
+                $manufacturer->appendChild($xml->createCDATASection($product->getManufacturer()));
+                $productNode->appendChild($manufacturer);
+
+                $maincategory = $xml->createElement("maincategory");
+                $maincategory->appendChild($xml->createCDATASection($product->getMaincategory()));
+                $productNode->appendChild($maincategory);
+
+                $price = $xml->createElement("price_item");
+                $price->appendChild($xml->createCDATASection($product->getPrice()));
+                $productNode->appendChild($price);
 
                 $priceSum = $xml->createElement("price_sum");
                 $priceSum->appendChild($xml->createCDATASection($product->getPriceSum()));
@@ -97,29 +95,29 @@ class OrderManager extends Manager
 
 
                 $products->appendChild($productNode);
-			}
+            }
 
-			$element->appendChild($products);
-		}
-		
-		return $xml->saveXML();
-	}
-	
-	public function getOrders()
-	{
-		return $this->orders;
-	}
+            $element->appendChild($products);
+        }
 
-	public function setOrders($orders)
-	{
-		$this->orders = $orders;
-		return $this;
-	}
-	
-	public function addOrder(Order $order)
-	{
-		$this->orders[] = $order;
-		return $this;
-	}
-	
+        return $xml->saveXML();
+    }
+
+    public function getOrders()
+    {
+        return $this->orders;
+    }
+
+    public function setOrders($orders)
+    {
+        $this->orders = $orders;
+        return $this;
+    }
+
+    public function addOrder(Order $order)
+    {
+        $this->orders[] = $order;
+        return $this;
+    }
+
 }

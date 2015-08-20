@@ -4,60 +4,59 @@ namespace CentralNews\Entity;
 
 class LostCart
 {
-	protected $lostCartUrl = '';
-	protected $email = '';
-	protected $products = array();
-	protected $discountCoupon = null;
-	
-	public function getLostCartUrl()
-	{
-		return $this->lostCartUrl;
-	}
+    protected $lostCartUrl = '';
+    protected $email = '';
+    protected $products = array();
+    protected $discountCoupon = null;
 
-	public function setLostCartUrl($lostCartUrl)
-	{
-		$this->lostCartUrl = $lostCartUrl;
-		return $this;
-	}
-	
-	public function getEmail()
-	{
-		return $this->email;
-	}
+    public function getLostCartUrl()
+    {
+        return $this->lostCartUrl;
+    }
 
-	public function setEmail($email)
-	{
-		$this->email = $email;
-		return $this;
-	}
+    public function setLostCartUrl($lostCartUrl)
+    {
+        $this->lostCartUrl = $lostCartUrl;
+        return $this;
+    }
 
-	public function getProducts()
-	{
-		return $this->products;
-	}
-	
-	public function addProduct(Product $product)
-	{
-		$this->products[] = $product;
-		return $this;
-	}
+    public function getEmail()
+    {
+        return $this->email;
+    }
 
-	public function setProducts($products)
-	{
-		$this->products = $products;
-		return $this;
-	}
+    public function setEmail($email)
+    {
+        $this->email = $email;
+        return $this;
+    }
 
-	public function getDiscountCoupon()
-	{
-		return $this->discountCoupon;
-	}
+    public function getProducts()
+    {
+        return $this->products;
+    }
 
-	public function setDiscountCoupon(Discount $discountCoupon)
-	{
-		$this->discountCoupon = $discountCoupon;
-		return $this;
-	}
+    public function addProduct(Product $product)
+    {
+        $this->products[] = $product;
+        return $this;
+    }
 
+    public function setProducts($products)
+    {
+        $this->products = $products;
+        return $this;
+    }
+
+    public function getDiscountCoupon()
+    {
+        return $this->discountCoupon;
+    }
+
+    public function setDiscountCoupon(Discount $discountCoupon)
+    {
+        $this->discountCoupon = $discountCoupon;
+        return $this;
+    }
 
 }
