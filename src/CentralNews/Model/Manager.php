@@ -4,6 +4,7 @@ namespace CentralNews\Model;
 
 use CentralNews\Exception;
 use CentralNews\Service\Response;
+use CentralNews\Service\Client;
 
 abstract class Manager
 {
@@ -18,7 +19,7 @@ abstract class Manager
     protected $centralNewsApi;
 
     /**
-     * @param \CentralNews\Model\Client $centralNewsApi
+     * @param \CentralNews\Service\Client $centralNewsApi
      */
     public function __construct(Client $centralNewsApi)
     {
