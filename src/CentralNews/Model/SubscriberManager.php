@@ -113,7 +113,7 @@ class SubscriberManager extends Manager
     public function getGroups()
     {
         $groups = array();
-        
+
         $request = new \CentralNews\Service\Request('get_subscriber_groups', array(), '', '', $this->centralNewsApi->getSoapHeaders());
         $response = $this->sendRequest($request);
 
@@ -131,11 +131,6 @@ class SubscriberManager extends Manager
         } else {
             throw new \Exception(gettext("chyba při parsování seznamu skupin"));
         }
-    }
-
-    public function saveGroup(SubscriberGroup $group)
-    {
-
     }
 
 }

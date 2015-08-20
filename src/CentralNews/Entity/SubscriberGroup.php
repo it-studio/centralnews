@@ -10,6 +10,9 @@ class SubscriberGroup extends Entity
     /** @var string */
     protected $name;
 
+    /** @var string */
+    protected $description;
+
     /**
      * @param array $data
      */
@@ -19,6 +22,10 @@ class SubscriberGroup extends Entity
 
         if (isset($data['name'])) {
             $this->setName($data['name']);
+        }
+
+        if (isset($data['description'])) {
+            $this->setDescription($data['description']);
         }
     }
 
@@ -35,6 +42,14 @@ class SubscriberGroup extends Entity
     }
 
     /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
      * 
      * @param string $name
      * @throws \CentralNews\Exception\InvalidArgumentException
@@ -48,6 +63,14 @@ class SubscriberGroup extends Entity
         }
         $this->name = $name;
         return $this;
+    }
+
+    /**
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
     }
 
 }

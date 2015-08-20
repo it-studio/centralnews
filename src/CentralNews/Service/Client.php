@@ -12,6 +12,43 @@ class Client
     protected $user = '';
     protected $password = '';
 
+    /** @var \CentralNews\Model\SubscriberManager */
+    protected $subscriberManager;
+
+    /**
+     * @param string $name
+     * @return mixed
+     * @throws Exception\InvalidArgumentException
+     */
+    public function __get($name)
+    {
+        $getter = 'get' . ucfirst($name);
+        if (method_exists($this, $getter)) {
+            return $this->$getter();
+        }
+
+        throw new Exception\InvalidArgumentException;
+    }
+
+    /**
+     * @return \CentralNews\Model\SubscriberManager
+     */
+    public function getSubscriberManager()
+    {
+        if (!$this->subscriberManager) {
+            $this->subscriberManager = $this->createSubscriberManager();
+        }
+        return $this->subscriberManager;
+    }
+
+    /**
+     * @return \CentralNews\Model\SubscriberManager
+     */
+    protected function createSubscriberManager()
+    {
+        return new \CentralNews\Model\SubscriberManager($this);
+    }
+
     /**
      * @throws \CentralNews\Exception\Exception
      * @return \nusoap_client
@@ -43,29 +80,12 @@ class Client
     }
 
     /**
-     * ziska z CN seznam skupin, do kterych je mozne odberatele zaradit
-     * @throws \Exception
-     * @return array
+     * @return \CentralNews\Entity\SubscriberGroup[]
      */
     public function getSubscribersGroups()
     {
-        $groups = array();
-
-        $rawResponse = $this->createApiClient()->call('get_subscriber_groups', array(), '', '', $this->getSoapHeaders());
-        $response = new Response($rawResponse);
-
-        $xml = $response->getResult();
-        if ($xml instanceof \SimpleXMLElement) {
-
-            foreach ($xml->groups[0]->group as $group) {
-                $attr = $group->attributes();
-                $groups[(int) $attr->id] = (string) $attr->name;
-            }
-
-            return $groups;
-        } else {
-            throw new \Exception(gettext("chyba při parsování seznamu skupin"));
-        }
+        $manager = $this->getSubscriberManager();
+        return $manager->getGroups();
     }
 
     /**
