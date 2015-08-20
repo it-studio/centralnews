@@ -113,8 +113,9 @@ class SubscriberManager extends Manager
     public function getGroups()
     {
         $groups = array();
-
-        $response = $this->sendRequest('get_subscriber_groups', array(), '', '', $this->centralNewsApi->getSoapHeaders());
+        
+        $request = new \CentralNews\Service\Request('get_subscriber_groups', array(), '', '', $this->centralNewsApi->getSoapHeaders());
+        $response = $this->sendRequest($request);
 
         $xml = $response->getResult();
         if ($xml instanceof \SimpleXMLElement) {
