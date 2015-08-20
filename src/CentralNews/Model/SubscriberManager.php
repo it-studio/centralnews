@@ -4,6 +4,7 @@ namespace CentralNews\Model;
 
 use CentralNews\Service\Response;
 use CentralNews\Entity\Subscriber;
+use CentralNews\Entity\SubscriberGroup;
 use CentralNews\Exception;
 
 class SubscriberManager extends Manager
@@ -103,6 +104,37 @@ class SubscriberManager extends Manager
         $xml->endElement();
 
         return $xml->flush();
+    }
+
+    /**
+     * @throws \Exception
+     * @return \CentralNews\Entity\SubscriberGroup
+     */
+    public function getGroups()
+    {
+        $groups = array();
+
+        $response = $this->sendRequest('get_subscriber_groups', array(), '', '', $this->centralNewsApi->getSoapHeaders());
+
+        $xml = $response->getResult();
+        if ($xml instanceof \SimpleXMLElement) {
+
+            foreach ($xml->groups[0]->group as $group) {
+                $attr = $group->attributes();
+                $id = (int) $attr->id;
+                $name = (string) $attr->name;
+                $groups[$id] = new SubscriberGroup(array('id' => $id, 'name' => $name));
+            }
+
+            return $groups;
+        } else {
+            throw new \Exception(gettext("chyba při parsování seznamu skupin"));
+        }
+    }
+
+    public function saveGroup(SubscriberGroup $group)
+    {
+
     }
 
 }
