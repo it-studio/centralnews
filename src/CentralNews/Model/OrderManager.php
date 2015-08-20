@@ -8,17 +8,27 @@ use CentralNews\Entity\Order;
 
 class OrderManager extends Manager
 {
-    protected $centralNewsApi = null;
-    protected $orders = array();
+    /**
+     * @var Client
+     */
+    protected $centralNewsApi;
 
+    /**
+     * @param Client $centralNewsApi
+     */
     public function __construct(Client $centralNewsApi)
     {
         $this->centralNewsApi = $centralNewsApi;
     }
 
-    public function sendOrders()
+    /**
+     * @param Order[] $orders
+     * @throws Exception
+     * @return Response
+     */
+    public function sendOrders(array $orders)
     {
-        $xmlOrders = $this->getXml();
+        $xmlOrders = $this->createXml($orders);
         $encodedXmlData = base64_encode($xmlOrders);
 
         $param = array(
@@ -30,13 +40,27 @@ class OrderManager extends Manager
         return new Response($rawResponse);
     }
 
-    protected function getXml()
+    /**
+     * @param Order $order
+     * @throws Exception
+     * @return Response
+     */
+    public function sendOrder(Order $order)
+    {
+        return $this->sendOrders(array($order));
+    }
+
+    /**
+     * @param Order[] $orders
+     * @return string|false
+     */
+    protected function createXml(array $orders)
     {
         $xml = new \DOMDocument();
         $xml->formatOutput = true;
         $root = $xml->appendChild($xml->createElement("orders"));
 
-        foreach($this->getOrders() as $order) {
+        foreach($orders as $order) {
             $element = $root->appendChild($xml->createElement("order"));
 
             $orderNumber = $xml->createElement("order_number");
@@ -62,7 +86,6 @@ class OrderManager extends Manager
             $products = $xml->createElement("products");
 
             foreach($order->getOrderProducts() as $product) {
-
                 $productNode = $xml->createElement("product");
 
                 $id = $xml->createElement("id");
@@ -93,31 +116,11 @@ class OrderManager extends Manager
                 $count->appendChild($xml->createCDATASection($product->getCount()));
                 $productNode->appendChild($count);
 
-
                 $products->appendChild($productNode);
             }
-
             $element->appendChild($products);
         }
-
         return $xml->saveXML();
-    }
-
-    public function getOrders()
-    {
-        return $this->orders;
-    }
-
-    public function setOrders($orders)
-    {
-        $this->orders = $orders;
-        return $this;
-    }
-
-    public function addOrder(Order $order)
-    {
-        $this->orders[] = $order;
-        return $this;
     }
 
 }
