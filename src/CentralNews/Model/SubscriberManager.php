@@ -149,12 +149,16 @@ class SubscriberManager extends Manager
 
     /**
      * @param \CentralNews\Entity\SubscriberGroup|null $group
+     * @throws \CentralNews\Exception\InvalidArgumentException
      * @return int
      */
     public function getSubscribersCount(SubscriberGroup $group = null)
     {
         $data = array();
         if ($group) {
+            if (!$group->getId()) {
+                throw new Exception\InvalidArgumentException;
+            }
             $data['group_id'] = $group->getId();
         }
 
