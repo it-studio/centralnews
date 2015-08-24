@@ -9,6 +9,8 @@ use CentralNews\Exception;
 
 class SubscriberManager extends Manager
 {
+    /** @var \CentralNews\Entity\SubscriberGroup[] */
+    protected $groups;
 
     /**
      * Nacte odberatele z dane skupiny na zaklade jeho emailu
@@ -61,13 +63,14 @@ class SubscriberManager extends Manager
 
     /**
      * @param \CentralNews\Service\Subscriber|email $subscriber
+     * @param \CentralNews\Entity\SubscriberGroup $group
      * @return \CentralNews\Service\Response
      */
-    public function deleteSubscriber($subscriber)
+    public function deleteSubscriber($subscriber, SubscriberGroup $group)
     {
         $email = $subscriber instanceof Subscriber ? $subscriber->getEmail() : $subscriber;
         $param = array(
-            'group_id' => $this->getIdGroup(),
+            'group_id' => $group->getId(),
             'subscriber_email' => $email,
         );
 
@@ -108,9 +111,9 @@ class SubscriberManager extends Manager
 
     /**
      * @throws \Exception
-     * @return \CentralNews\Entity\SubscriberGroup
+     * @return \CentralNews\Entity\SubscriberGroup[]
      */
-    public function getGroups()
+    public function loadGroups()
     {
         $groups = array();
 
@@ -131,6 +134,17 @@ class SubscriberManager extends Manager
         } else {
             throw new \Exception(gettext("chyba při parsování seznamu skupin"));
         }
+    }
+
+    /**
+     * @return \CentralNews\Entity\SubscriberGroup[]
+     */
+    public function getGroups()
+    {
+        if (!$this->groups) {
+            $this->groups = $this->loadGroups();
+        }
+        return $this->groups;
     }
 
     /**
@@ -155,8 +169,9 @@ class SubscriberManager extends Manager
         foreach ($response->getResult()->groups->group[0]->attributes() as $attrName => $attrVal) {
             $out[$attrName] = (string) $attrVal;
         }
-
-        return new SubscriberGroup($out);
+        $newGroup = new SubscriberGroup($out);
+        $this->groups = $this->getGroups() + array($newGroup->getId() => $newGroup);
+        return $newGroup;
     }
 
     /**
