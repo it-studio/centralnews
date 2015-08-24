@@ -18,7 +18,7 @@ abstract class Entity
             if (!$id) {
                 throw new \InvalidArgumentException;
             }
-            $this->id = $data['id'];
+            $this->id = $id;
         }
     }
 
