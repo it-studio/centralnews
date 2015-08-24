@@ -169,6 +169,31 @@ class SubscriberManager extends Manager
     }
 
     /**
+     * @param \CentralNews\Entity\SubscriberGroup|null $group
+     * @throws \CentralNews\Exception\InvalidArgumentException
+     * @return array
+     */
+    public function getSubscriberFields(SubscriberGroup $group = null)
+    {
+        $data = array();
+        if ($group) {
+            if (!$group->getId()) {
+                throw new Exception\InvalidArgumentException;
+            }
+            $data['group_id'] = $group->getId();
+        }
+
+        $request = new \CentralNews\Service\Request('get_subscriber_fields', $data, '', '', $this->centralNewsApi->getSoapHeaders());
+        $response = $this->sendRequest($request);
+        $out = array();
+        foreach ($response->getResult()->subscriberField->attributes() as $attrName => $attrVal) {
+            $out[$attrName] = (string) $attrVal;
+        }
+
+        return $out;
+    }
+
+    /**
      * description neni definovane v xml pdf 
      * @param type $group
      * @return SubscriberGroup
