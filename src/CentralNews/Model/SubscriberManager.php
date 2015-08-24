@@ -148,6 +148,23 @@ class SubscriberManager extends Manager
     }
 
     /**
+     * @param \CentralNews\Entity\SubscriberGroup|null $group
+     * @return int
+     */
+    public function getSubscribersCount(SubscriberGroup $group = null)
+    {
+        $data = array();
+        if ($group) {
+            $data['group_id'] = $group->getId();
+        }
+
+        $request = new \CentralNews\Service\Request('get_subscribers_count', $data, '', '', $this->centralNewsApi->getSoapHeaders());
+        $response = $this->sendRequest($request);
+
+        return (int) $response->getResult()->count->attributes()->count;
+    }
+
+    /**
      * description neni definovane v xml pdf 
      * @param type $group
      * @return SubscriberGroup
