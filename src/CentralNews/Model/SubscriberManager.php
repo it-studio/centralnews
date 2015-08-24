@@ -133,4 +133,49 @@ class SubscriberManager extends Manager
         }
     }
 
+    /**
+     * description neni definovane v xml pdf 
+     * @param type $group
+     * @return SubscriberGroup
+     */
+    public function addGroup(SubscriberGroup $group)
+    {
+        $xmlData = $this->createXmlSubscriberGroup($group);
+        $encodedXmlData = base64_encode($xmlData);
+
+        $data = array(
+            'groups' => $encodedXmlData
+        );
+
+        $request = new \CentralNews\Service\Request('add_subscriber_groups', $data, '', '', $this->centralNewsApi->getSoapHeaders());
+        $response = $this->sendRequest($request);
+
+        // pocet vyslednych skupin> $xml->groups->attributes()->count
+        $out = array();
+        foreach ($response->getResult()->groups->group[0]->attributes() as $attrName => $attrVal) {
+            $out[$attrName] = (string) $attrVal;
+        }
+
+        return new SubscriberGroup($out);
+    }
+
+    /**
+     * @param SubscriberGroup $subscriber
+     * @return string
+     */
+    protected function createXmlSubscriberGroup(SubscriberGroup $subscriber)
+    {
+        $xml = new \XMLWriter();
+        $xml->openMemory();
+        $xml->startDocument('1.0', 'UTF-8');
+        $xml->startElement("groups");
+        $xml->startElement("group");
+        $xml->writeAttribute('name', $subscriber->getName());
+        $xml->writeAttribute('firstname', $subscriber->getDescription());
+        $xml->endElement();
+        $xml->endElement();
+
+        return $xml->flush();
+    }
+
 }
