@@ -2,46 +2,53 @@
 
 namespace CentralNews\Model;
 
-use CentralNews\Service\Response;
 use CentralNews\Entity\Order;
+use CentralNews\Entity\SubscriberGroup;
+use CentralNews\Exception\InvalidArgumentException;
 
 class OrderManager extends Manager
 {
 
     /**
-     * @param Order[] $orders
-     * @throws Exception
-     * @return Response
+     * @param \CentralNews\Entity\Order[] $orders
+     * @param \CentralNews\Entity\SubscriberGroup $group
+     * @return bool
+     * @throws \CentralNews\Exception\InvalidArgumentException
      */
-    public function sendOrders(array $orders)
+    public function importOrders(array $orders, SubscriberGroup $group)
     {
-        $xmlOrders = $this->createXml($orders);
-        $encodedXmlData = base64_encode($xmlOrders);
+        if (!$group->getId()) {
+            throw new InvalidArgumentException;
+        }
+        $xmlOrders = $this->createOrdersXml($orders);
 
-        $param = array(
-            'group_id' => $this->getIdGroup(),
-            'orders' => $encodedXmlData
+        $data = array(
+            'group_id' => $group->getId(),
+            'orders' => base64_encode($xmlOrders),
         );
 
-        $rawResponse = $this->centralNewsApi->createApiClient()->call('import_orders', $param, '', '', $this->centralNewsApi->getSoapHeaders());
-        return new Response($rawResponse);
+        $request = new \CentralNews\Service\Request('import_orders', $data, '', '', $this->centralNewsApi->getSoapHeaders());
+        $response = $this->sendRequest($request);
+        var_dump($response);
+        return $response->getStatus() == 'success';
     }
 
     /**
-     * @param Order $order
-     * @throws Exception
-     * @return Response
+     * @param \CentralNews\Entity\Order $order
+     * @param \CentralNews\Entity\SubscriberGroup $group
+     * @return bool
+     * @throws \CentralNews\Exception\InvalidArgumentException
      */
-    public function sendOrder(Order $order)
+    public function importOrder(Order $order, SubscriberGroup $group)
     {
-        return $this->sendOrders(array($order));
+        return $this->importOrders(array($order), $group);
     }
 
     /**
      * @param Order[] $orders
      * @return string|false
      */
-    protected function createXml(array $orders)
+    protected function createOrdersXml(array $orders)
     {
         $xml = new \DOMDocument();
         $xml->formatOutput = true;
@@ -67,7 +74,7 @@ class OrderManager extends Manager
             $element->appendChild($created);
 
             $accept = $xml->createElement("accept_newsletters");
-            $accept->appendChild($xml->createCDATASection($order->getAcceptNewsletters()));
+            $accept->appendChild($xml->createCDATASection((int) $order->getAcceptNewsletters()));
             $element->appendChild($accept);
 
             $products = $xml->createElement("products");
