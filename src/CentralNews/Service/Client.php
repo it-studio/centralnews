@@ -15,6 +15,9 @@ class Client
     /** @var \CentralNews\Model\SubscriberManager */
     protected $subscriberManager;
 
+    /** @var \CentralNews\Model\OrderManager */
+    protected $orderManager;
+
     /**
      * @param string $name
      * @return mixed
@@ -47,6 +50,25 @@ class Client
     protected function createSubscriberManager()
     {
         return new \CentralNews\Model\SubscriberManager($this);
+    }
+
+    /**
+     * @return \CentralNews\Model\OrderManager
+     */
+    public function getOrderManager()
+    {
+        if (!$this->orderManager) {
+            $this->orderManager = $this->createOrderManager();
+        }
+        return $this->orderManager;
+    }
+
+    /**
+     * @return \CentralNews\Model\OrderManager
+     */
+    protected function createOrderManager()
+    {
+        return new \CentralNews\Model\OrderManager($this);
     }
 
     /**
