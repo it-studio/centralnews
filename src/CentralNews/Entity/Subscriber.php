@@ -2,6 +2,8 @@
 
 namespace CentralNews\Entity;
 
+use CentralNews\Exception\InvalidArgumentException;
+
 class Subscriber
 {
     const ACTIVE = 'aktivni';
@@ -17,11 +19,12 @@ class Subscriber
     protected $phoneNumber = null;
     protected $statusActivity = null;
     protected $statusActivityRewrite = null;
+    protected $statusConfirmation;
 
     public function __construct($email)
     {
         if (empty($email)) {
-            throw new Exception(gettext("neznámý email odběratele"));
+            throw new InvalidArgumentException;
         }
         $this->setEmail($email);
     }
@@ -67,6 +70,14 @@ class Subscriber
 
         if (isset($subscriberData['phone_number'])) {
             $subscriber->setPhoneNumber($subscriberData['phone_number']);
+        }
+
+        if (isset($subscriberData['status_activity'])) {
+            $subscriber->setStatusActivity($subscriberData['status_activity']);
+        }
+
+        if (isset($subscriberData['status_confirmation'])) {
+            $subscriber->setStatusConfirmation($subscriberData['status_confirmation']);
         }
 
         return $subscriber;
@@ -189,6 +200,16 @@ class Subscriber
     {
         $this->statusActivityRewrite = (int) $statusActivityRewrite;
         return $this;
+    }
+
+    public function getStatusConfirmation()
+    {
+        return $this->statusConfirmation;
+    }
+
+    public function setStatusConfirmation($statusConfirmation)
+    {
+        $this->statusConfirmation = $statusConfirmation;
     }
 
 }

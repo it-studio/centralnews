@@ -193,6 +193,42 @@ class SubscriberManager extends Manager
         return $out;
     }
 
+    public function getSubscriber($subscriber, SubscriberGroup $group)
+    {
+        $email = $subscriber instanceof Subscriber ? $subscriber->getEmail() : $subscriber;
+        $data = array();
+        if ($group) {
+            if (!$group->getId()) {
+                throw new Exception\InvalidArgumentException;
+            }
+            $data['group_id'] = $group->getId();
+        }
+        $data['subscriber_email'] = $email;
+
+        $request = new \CentralNews\Service\Request('get_subscriber', $data, '', '', $this->centralNewsApi->getSoapHeaders());
+        $response = $this->sendRequest($request);
+
+
+        // pocet vyslednych skupin: $xml->groups->attributes()->count
+        $out = array();
+        foreach ($response->getResult()->subscriber->attributes() as $attrName => $attrVal) {
+            $out[$attrName] = (string) $attrVal;
+        }
+        /** @todo getSubscriberFields + subscriberObject */
+        $map = array(
+            'email' => $out['SUBSCRIBER_EMAIL'],
+            'firstname' => $out['SUBSCRIBER_FIRSTNAME'],
+            'status_activity' => $out['status_activity'],
+            'status_confirmation' => $out['status_confirmation'],
+            'surname' => $out['SUBSCRIBER_SURNAME'],
+            'city' => $out['SUBSCRIBER_CITY'],
+            'gender' => $out['SUBSCRIBER_GENDER'],
+            'main_order' => $out['SUBSCRIBER_MAIN_ORDER'],
+        );
+
+        return !empty($out) ? Subscriber::fromArray($map) : false;
+    }
+
     /**
      * description neni definovane v xml pdf 
      * @param type $group
