@@ -62,4 +62,23 @@ abstract class Manager
         return new Response($this->centralNewsApi->createApiClient()->call($request->getOperation(), $request->getParams(), $request->getNamespace(), $request->getAction(), $request->getHeaders()));
     }
 
+    /**
+     * @param string $name
+     * @param mixed $arguments
+     */
+    public function __call($name, $arguments)
+    {
+        if (property_exists($this, $name) && !empty($this->$name)) {
+            if (is_array($this->$name)) {
+                foreach ($this->$name as $key => $callback) {
+                    call_user_func_array($callback, $arguments);
+                }
+            } else {
+                call_user_func_array($this->$name, $arguments);
+            }
+        } else {
+            throw new Exception\InvalidArgumentException;
+        }
+    }
+
 }

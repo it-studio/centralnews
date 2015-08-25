@@ -8,6 +8,8 @@ use CentralNews\Exception\InvalidArgumentException;
 
 class OrderManager extends Manager
 {
+    /** @var callable[]  function (\CentralNews\Model\OrderManager $manager, \CentralNews\Service\Response $response); */
+    public $onImportedOrders;
 
     /**
      * @param \CentralNews\Entity\Order[] $orders
@@ -29,7 +31,7 @@ class OrderManager extends Manager
 
         $request = new \CentralNews\Service\Request('import_orders', $data, '', '', $this->centralNewsApi->getSoapHeaders());
         $response = $this->sendRequest($request);
-        var_dump($response);
+        $this->onImportedOrders($this, $response);
         return $response->getStatus() == 'success';
     }
 
