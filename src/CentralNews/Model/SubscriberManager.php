@@ -2,7 +2,7 @@
 
 namespace CentralNews\Model;
 
-use CentralNews\Service\Response;
+use CentralNews\Service\Request;
 use CentralNews\Entity\Subscriber;
 use CentralNews\Entity\SubscriberGroup;
 use CentralNews\Exception;
@@ -11,55 +11,6 @@ class SubscriberManager extends Manager
 {
     /** @var \CentralNews\Entity\SubscriberGroup[] */
     protected $groups;
-
-    /**
-     * Nacte odberatele z dane skupiny na zaklade jeho emailu
-     * @param type $email
-     * @throws \Exception
-     * @return \CentralNews\Entity\Subscriber
-     */
-    public function getSubscriberByEmail($email)
-    {
-        $param = array(
-            'group_id' => $this->getIdGroup(),
-            'subscriber_email' => $email,
-        );
-
-        $rawResponse = $this->centralNewsApi->createApiClient()->call('get_subscriber', $param, '', '', $this->centralNewsApi->getSoapHeaders());
-        $response = new Response($rawResponse);
-        if ($response->isError()) {
-            throw new Exception\Exception($response->getMessage());
-        }
-
-        // vraceny subscriber. pokud neni v odpovedi xml s daty subscribera (pokud nebyl v CN nalezen), vracime null
-        $subscriber = null;
-        $xmlSubscriber = $response->getResult();
-
-        if ($xmlSubscriber instanceof \SimpleXMLElement) {
-            $subscriber = Subscriber::createFromXml($xmlSubscriber);
-        }
-
-        return $subscriber;
-    }
-
-    /**
-     * Aktualizuje udaje o uzivateli v CN. Pokud neexistuje, vytvori se.
-     * @param Subscriber $subscriber
-     * @return \CentralNews\Service\Response
-     */
-    public function saveSubscriber(Subscriber $subscriber)
-    {
-        $xmlData = $this->createXml($subscriber);
-        $encodedXmlData = base64_encode($xmlData);
-
-        $param = array(
-            'group_id' => $this->getIdGroup(),
-            'subscribers' => $encodedXmlData
-        );
-
-        $rawResponse = $this->centralNewsApi->createApiClient()->call('import_subscribers', $param, '', '', $this->centralNewsApi->getSoapHeaders());
-        return new Response($rawResponse);
-    }
 
     /**
      * @param \CentralNews\Service\Subscriber|email $subscriber
@@ -74,8 +25,8 @@ class SubscriberManager extends Manager
             'subscriber_email' => $email,
         );
 
-        $rawResponse = $this->centralNewsApi->createApiClient()->call('delete_subscriber', $param, '', '', $this->centralNewsApi->getSoapHeaders());
-        return new Response($rawResponse);
+        $request = new Request('delete_subscriber', $param, '', '');
+        return $this->sendRequest($request);
     }
 
     /**
@@ -117,7 +68,7 @@ class SubscriberManager extends Manager
     {
         $groups = array();
 
-        $request = new \CentralNews\Service\Request('get_subscriber_groups', array(), '', '', $this->centralNewsApi->getSoapHeaders());
+        $request = new \CentralNews\Service\Request('get_subscriber_groups', array(), '', '');
         $response = $this->sendRequest($request);
 
         $xml = $response->getResult();
@@ -141,7 +92,7 @@ class SubscriberManager extends Manager
      */
     public function getGroups()
     {
-        if (!$this->groups) {
+        if ($this->groups === null) {
             $this->groups = $this->loadGroups();
         }
         return $this->groups;
@@ -162,7 +113,7 @@ class SubscriberManager extends Manager
             $data['group_id'] = $group->getId();
         }
 
-        $request = new \CentralNews\Service\Request('get_subscribers_count', $data, '', '', $this->centralNewsApi->getSoapHeaders());
+        $request = new \CentralNews\Service\Request('get_subscribers_count', $data, '', '');
         $response = $this->sendRequest($request);
 
         return (int) $response->getResult()->count->attributes()->count;
@@ -183,7 +134,7 @@ class SubscriberManager extends Manager
             $data['group_id'] = $group->getId();
         }
 
-        $request = new \CentralNews\Service\Request('get_subscriber_fields', $data, '', '', $this->centralNewsApi->getSoapHeaders());
+        $request = new \CentralNews\Service\Request('get_subscriber_fields', $data, '', '');
         $response = $this->sendRequest($request);
         $out = array();
         foreach ($response->getResult()->subscriberField->attributes() as $attrName => $attrVal) {
@@ -205,7 +156,7 @@ class SubscriberManager extends Manager
         }
         $data['subscriber_email'] = $email;
 
-        $request = new \CentralNews\Service\Request('get_subscriber', $data, '', '', $this->centralNewsApi->getSoapHeaders());
+        $request = new \CentralNews\Service\Request('get_subscriber', $data, '', '');
         $response = $this->sendRequest($request);
 
 
@@ -243,7 +194,7 @@ class SubscriberManager extends Manager
             'groups' => $encodedXmlData
         );
 
-        $request = new \CentralNews\Service\Request('add_subscriber_groups', $data, '', '', $this->centralNewsApi->getSoapHeaders());
+        $request = new \CentralNews\Service\Request('add_subscriber_groups', $data, '', '');
         $response = $this->sendRequest($request);
 
         // pocet vyslednych skupin> $xml->groups->attributes()->count

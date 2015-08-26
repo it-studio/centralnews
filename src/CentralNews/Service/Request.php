@@ -26,15 +26,13 @@ class Request
      * @param array $params
      * @param string $namespace
      * @param string $action
-     * @param array $headers
      */
-    public function __construct($operation = '', array $params = array(), $namespace = '', $action = '', array $headers = array())
+    public function __construct($operation = '', array $params = array(), $namespace = '', $action = '')
     {
         $this->setOperation($operation);
         $this->setParams($params);
         $this->setNamespace($namespace);
         $this->setAction($action);
-        $this->setHeaders($headers);
     }
 
     public function getOperation()
@@ -57,11 +55,6 @@ class Request
         return $this->action;
     }
 
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
     public function setOperation($operation)
     {
         $this->operation = $operation;
@@ -80,11 +73,6 @@ class Request
     public function setAction($action)
     {
         $this->action = $action;
-    }
-
-    public function setHeaders(array $headers)
-    {
-        $this->headers = $headers;
     }
 
 }

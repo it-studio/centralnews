@@ -2,7 +2,6 @@
 
 namespace CentralNews\Model;
 
-use CentralNews\Service\Response;
 use CentralNews\Entity\LostCart;
 use CentralNews\Entity\Discount;
 
@@ -29,8 +28,8 @@ class LostCartManager extends Manager
             'code' => $lostCart->getEmail() . '-' . date("d.m.Y") . $timestamp,
         );
 
-        $rawResponse = $this->centralNewsApi->createApiClient()->call('user_event', $param, '', '', $this->centralNewsApi->getSoapHeaders());
-        return new Response($rawResponse);
+        $request = new \CentralNews\Service\Request('user_event', $param, '', '');
+        return $this->sendRequest($request);
     }
 
     protected function getXml(LostCart $lostCart)

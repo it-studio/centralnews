@@ -29,7 +29,7 @@ class OrderManager extends Manager
             'orders' => base64_encode($xmlOrders),
         );
 
-        $request = new \CentralNews\Service\Request('import_orders', $data, '', '', $this->centralNewsApi->getSoapHeaders());
+        $request = new \CentralNews\Service\Request('import_orders', $data, '', '');
         $response = $this->sendRequest($request);
         $this->onImportedOrders($this, $response);
         return $response->getStatus() == 'success';

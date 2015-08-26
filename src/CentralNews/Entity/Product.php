@@ -4,18 +4,18 @@ namespace CentralNews\Entity;
 
 class Product
 {
-    protected $id = 0;
-    protected $name = '';
-    protected $manufacturer = '';
-    protected $maincategory = '';
-    protected $price = '';
-    protected $priceSum = '';
-    protected $count = '';
-    protected $url = '';
-    protected $image = '';
-    protected $description = '';
-    protected $priceOld = '';
-    protected $sale = '';
+    protected $id;
+    protected $name;
+    protected $manufacturer;
+    protected $maincategory;
+    protected $price;
+    protected $priceSum;
+    protected $count;
+    protected $url;
+    protected $image;
+    protected $description;
+    protected $priceOld;
+    protected $sale;
 
     public function getId()
     {
