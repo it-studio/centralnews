@@ -5,7 +5,7 @@ namespace CentralNews\Entity;
 use CentralNews\Exception\DomainException;
 use CentralNews\Exception\InvalidArgumentException;
 
-class BaseSubscriberGroup extends Entity
+class BaseSubscriberGroup extends Entity implements ISubscriberGroup
 {
     /** @var string */
     protected $name;

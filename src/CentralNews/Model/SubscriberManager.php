@@ -5,6 +5,7 @@ namespace CentralNews\Model;
 use CentralNews\Service\Request;
 use CentralNews\Entity\Subscriber;
 use CentralNews\Entity\SubscriberGroup;
+use CentralNews\Entity\ISubscriberGroup;
 use CentralNews\Entity\BaseSubscriberGroup;
 use CentralNews\Exception;
 
@@ -15,10 +16,10 @@ class SubscriberManager extends Manager
 
     /**
      * @param \CentralNews\Service\Subscriber|email $subscriber
-     * @param \CentralNews\Entity\BaseSubscriberGroup $group
+     * @param \CentralNews\Entity\ISubscriberGroup $group
      * @return \CentralNews\Service\Response
      */
-    public function deleteSubscriber($subscriber, BaseSubscriberGroup $group)
+    public function deleteSubscriber($subscriber, ISubscriberGroup $group)
     {
         $email = $subscriber instanceof Subscriber ? $subscriber->getEmail() : $subscriber;
         $param = array(
@@ -100,11 +101,11 @@ class SubscriberManager extends Manager
     }
 
     /**
-     * @param \CentralNews\Entity\BaseSubscriberGroup|null $group
+     * @param \CentralNews\Entity\ISubscriberGroup|null $group
      * @throws \CentralNews\Exception\InvalidArgumentException
      * @return int
      */
-    public function getSubscribersCount(BaseSubscriberGroup $group = null)
+    public function getSubscribersCount(ISubscriberGroup $group = null)
     {
         $data = array();
         if ($group) {
@@ -121,11 +122,11 @@ class SubscriberManager extends Manager
     }
 
     /**
-     * @param \CentralNews\Entity\BaseSubscriberGroup|null $group
+     * @param \CentralNews\Entity\ISubscriberGroup|null $group
      * @throws \CentralNews\Exception\InvalidArgumentException
      * @return array
      */
-    public function getSubscriberFields(BaseSubscriberGroup $group = null)
+    public function getSubscriberFields(ISubscriberGroup $group = null)
     {
         $data = array();
         if ($group) {
@@ -145,7 +146,7 @@ class SubscriberManager extends Manager
         return $out;
     }
 
-    public function getSubscriber($subscriber, BaseSubscriberGroup $group)
+    public function getSubscriber($subscriber, ISubscriberGroup $group)
     {
         $email = $subscriber instanceof Subscriber ? $subscriber->getEmail() : $subscriber;
         $data = array();
@@ -182,8 +183,7 @@ class SubscriberManager extends Manager
     }
 
     /**
-     * description neni definovane v xml pdf 
-     * @param type $group
+     * @param \CentralNews\Entity\SubscriberGroup $group
      * @return BaseSubscriberGroup
      */
     public function addGroup(SubscriberGroup $group)
