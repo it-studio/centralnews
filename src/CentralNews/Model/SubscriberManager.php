@@ -17,7 +17,7 @@ class SubscriberManager extends Manager
     /**
      * @param \CentralNews\Service\Subscriber|email $subscriber
      * @param \CentralNews\Entity\ISubscriberGroup $group
-     * @return \CentralNews\Service\Response
+     * @return bool
      */
     public function deleteSubscriber($subscriber, ISubscriberGroup $group)
     {
@@ -28,7 +28,8 @@ class SubscriberManager extends Manager
         );
 
         $request = new Request('delete_subscriber', $param, '', '');
-        return $this->sendRequest($request);
+        $response = $this->sendRequest($request);
+        return $response->getStatus() == 'success';
     }
 
     /**
