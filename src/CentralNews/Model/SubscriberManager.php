@@ -5,19 +5,20 @@ namespace CentralNews\Model;
 use CentralNews\Service\Request;
 use CentralNews\Entity\Subscriber;
 use CentralNews\Entity\SubscriberGroup;
+use CentralNews\Entity\BaseSubscriberGroup;
 use CentralNews\Exception;
 
 class SubscriberManager extends Manager
 {
-    /** @var \CentralNews\Entity\SubscriberGroup[] */
+    /** @var \CentralNews\Entity\BaseSubscriberGroup[] */
     protected $groups;
 
     /**
      * @param \CentralNews\Service\Subscriber|email $subscriber
-     * @param \CentralNews\Entity\SubscriberGroup $group
+     * @param \CentralNews\Entity\BaseSubscriberGroup $group
      * @return \CentralNews\Service\Response
      */
-    public function deleteSubscriber($subscriber, SubscriberGroup $group)
+    public function deleteSubscriber($subscriber, BaseSubscriberGroup $group)
     {
         $email = $subscriber instanceof Subscriber ? $subscriber->getEmail() : $subscriber;
         $param = array(
@@ -62,7 +63,7 @@ class SubscriberManager extends Manager
 
     /**
      * @throws \Exception
-     * @return \CentralNews\Entity\SubscriberGroup[]
+     * @return \CentralNews\Entity\BaseSubscriberGroup[]
      */
     public function loadGroups()
     {
@@ -78,7 +79,7 @@ class SubscriberManager extends Manager
                 $attr = $group->attributes();
                 $id = (int) $attr->id;
                 $name = (string) $attr->name;
-                $groups[$id] = new SubscriberGroup(array('id' => $id, 'name' => $name));
+                $groups[$id] = new BaseSubscriberGroup(array('id' => $id, 'name' => $name));
             }
 
             return $groups;
@@ -88,7 +89,7 @@ class SubscriberManager extends Manager
     }
 
     /**
-     * @return \CentralNews\Entity\SubscriberGroup[]
+     * @return \CentralNews\Entity\BaseSubscriberGroup[]
      */
     public function getGroups()
     {
@@ -99,11 +100,11 @@ class SubscriberManager extends Manager
     }
 
     /**
-     * @param \CentralNews\Entity\SubscriberGroup|null $group
+     * @param \CentralNews\Entity\BaseSubscriberGroup|null $group
      * @throws \CentralNews\Exception\InvalidArgumentException
      * @return int
      */
-    public function getSubscribersCount(SubscriberGroup $group = null)
+    public function getSubscribersCount(BaseSubscriberGroup $group = null)
     {
         $data = array();
         if ($group) {
@@ -120,11 +121,11 @@ class SubscriberManager extends Manager
     }
 
     /**
-     * @param \CentralNews\Entity\SubscriberGroup|null $group
+     * @param \CentralNews\Entity\BaseSubscriberGroup|null $group
      * @throws \CentralNews\Exception\InvalidArgumentException
      * @return array
      */
-    public function getSubscriberFields(SubscriberGroup $group = null)
+    public function getSubscriberFields(BaseSubscriberGroup $group = null)
     {
         $data = array();
         if ($group) {
@@ -144,7 +145,7 @@ class SubscriberManager extends Manager
         return $out;
     }
 
-    public function getSubscriber($subscriber, SubscriberGroup $group)
+    public function getSubscriber($subscriber, BaseSubscriberGroup $group)
     {
         $email = $subscriber instanceof Subscriber ? $subscriber->getEmail() : $subscriber;
         $data = array();
@@ -183,7 +184,7 @@ class SubscriberManager extends Manager
     /**
      * description neni definovane v xml pdf 
      * @param type $group
-     * @return SubscriberGroup
+     * @return BaseSubscriberGroup
      */
     public function addGroup(SubscriberGroup $group)
     {
@@ -202,7 +203,7 @@ class SubscriberManager extends Manager
         foreach ($response->getResult()->groups->group[0]->attributes() as $attrName => $attrVal) {
             $out[$attrName] = (string) $attrVal;
         }
-        $newGroup = new SubscriberGroup($out);
+        $newGroup = new BaseSubscriberGroup($out);
         $this->groups = $this->getGroups() + array($newGroup->getId() => $newGroup);
         return $newGroup;
     }
@@ -219,7 +220,7 @@ class SubscriberManager extends Manager
         $xml->startElement("groups");
         $xml->startElement("group");
         $xml->writeAttribute('name', $subscriber->getName());
-        $xml->writeAttribute('firstname', $subscriber->getDescription());
+        $xml->writeAttribute('description', $subscriber->getDescription());
         $xml->endElement();
         $xml->endElement();
 
