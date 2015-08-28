@@ -59,7 +59,7 @@ class SubscriberManager extends Manager
 
         $request = new Request('import_subscribers', $param, '', '');
         $response = $this->sendRequest($request);
-        var_dump($response);
+
         return $response->getStatus() == 'success';
     }
 
