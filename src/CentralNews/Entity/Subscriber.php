@@ -8,6 +8,7 @@ class Subscriber
 {
     const ACTIVE = 'aktivni';
     const LOGOUT = 'odhlaseny';
+    const INVALID_EMAIL = 'chybny_email';
 
     protected $email = "";
     protected $firstname = null;
@@ -20,6 +21,9 @@ class Subscriber
     protected $statusActivity = null;
     protected $statusActivityRewrite = null;
     protected $statusConfirmation;
+    
+    /** @var string */
+    protected $status;
 
     public function __construct($email)
     {
@@ -172,12 +176,9 @@ class Subscriber
         return $this;
     }
 
-    public function getStatusActivityString()
+    public function getStatus()
     {
-        if (!is_null($this->getStatusActivity())) {
-            return $this->getStatusActivity() ? self::ACTIVE : self::LOGOUT;
-        }
-        return null;
+        return $this->status ? $this->status : self::LOGOUT;
     }
 
     public function getStatusActivity()
@@ -210,6 +211,16 @@ class Subscriber
     public function setStatusConfirmation($statusConfirmation)
     {
         $this->statusConfirmation = $statusConfirmation;
+    }
+
+    public function setStatus($status)
+    {
+        if ($status == self::ACTIVE || $status == self::LOGOUT || $status == self::INVALID_EMAIL) {
+            $this->status = $status;
+        } else {
+            throw new InvalidArgumentException('Invalid status');
+        }
+  
     }
 
 }

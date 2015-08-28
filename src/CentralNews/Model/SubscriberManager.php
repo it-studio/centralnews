@@ -33,34 +33,44 @@ class SubscriberManager extends Manager
     }
 
     /**
-     * @param \CentralNews\Service\Subscriber $subscriber
-     * @return string|false
+     * Aktualizuje udaje o uzivateli v CN. Pokud neexistuje, vytvori se.
+     * @param Subscriber $subscriber
+     * @return \CentralNews\Service\Response
      */
-    protected function createXml(Subscriber $subscriber)
+    public function saveSubscriber(Subscriber $subscriber, ISubscriberGroup $group)
     {
-        $xml = new \XMLWriter();
-        $xml->openMemory();
-        $xml->startDocument('1.0', 'UTF-8');
+        return $this->saveSubscribers(array($subscriber), $group);
+    }
 
-        $xml->startElement("subscribers");
-        $xml->writeAttribute('enable_update', true);
-        $xml->writeAttribute('group_id', $this->getIdGroup());
+    /**
+     * 
+     * @param array $subscribers
+     * @param ISubscriberGroup $group
+     * @param array $options
+     * @return type
+     */
+    public function saveSubscribers(array $subscribers, ISubscriberGroup $group, array $options = array())
+    {
+        $xml = $this->createXmlSubscribers($subscribers, $group, $options);
+        $param = array(
+            'group_id' => $group->getId(),
+            'subscribers' => base64_encode($xml)
+        );
 
-        $xml->startElement("subscriber");
-        $xml->writeAttribute('email', $subscriber->getEmail());
-        $xml->writeAttribute('firstname', $subscriber->getFirstname());
-        $xml->writeAttribute('surname', $subscriber->getSurname());
-        $xml->writeAttribute('city', $subscriber->getCity());
-        $xml->writeAttribute('address', $subscriber->getAddress());
-        $xml->writeAttribute('zip_code', $subscriber->getZipCode());
-        $xml->writeAttribute('company', $subscriber->getCompany());
-        $xml->writeAttribute('status_activity', $subscriber->getStatusActivityString());
-        $xml->writeAttribute('status_activity_rewrite', $subscriber->getStatusActivityRewrite());
-        $xml->endElement();
+        $request = new Request('import_subscribers', $param, '', '');
+        $response = $this->sendRequest($request);
+        var_dump($response);
+        return $response->getStatus() == 'success';
+    }
 
-        $xml->endElement();
+    public function importSubscribers(array $subscribers, ISubscriberGroup $group)
+    {
+        return $this->saveSubscribers($subscribers, $group, array('enable_update' => false));
+    }
 
-        return $xml->flush();
+    public function importSubscriber(Subscriber $subscriber, ISubscriberGroup $group)
+    {
+        return $this->importSubscribers(array($subscriber), $group);
     }
 
     /**
@@ -213,19 +223,36 @@ class SubscriberManager extends Manager
     }
 
     /**
-     * @param SubscriberGroup $subscriber
-     * @return string
+     * @param \CentralNews\Service\Subscriber $subscriber
+     * @return string|false
      */
-    protected function createXmlSubscriberGroup(SubscriberGroup $subscriber)
+    protected function createXmlSubscribers(array $subscribers, ISubscriberGroup $group, array $options)
     {
         $xml = new \XMLWriter();
         $xml->openMemory();
         $xml->startDocument('1.0', 'UTF-8');
-        $xml->startElement("groups");
-        $xml->startElement("group");
-        $xml->writeAttribute('name', $subscriber->getName());
-        $xml->writeAttribute('description', $subscriber->getDescription());
-        $xml->endElement();
+
+        $xml->startElement("subscribers");
+        $xml->writeAttribute('enable_update', isset($options['enable_update']) ? (bool) $options['enable_update'] : TRUE);
+        $xml->writeAttribute('group_id', (int) $group->getId());
+
+        if ($group instanceof BaseSubscriberGroup && !$group->getId() && $group->getName()) {
+            $xml->writeAttribute('subscriber_group_name', $group->getName());
+        }
+
+        foreach ($subscribers as $subscriber) {
+            $xml->startElement("subscriber");
+            $xml->writeAttribute('email', $subscriber->getEmail());
+            $xml->writeAttribute('firstname', $subscriber->getFirstname());
+            $xml->writeAttribute('surname', $subscriber->getSurname());
+            $xml->writeAttribute('city', $subscriber->getCity());
+            $xml->writeAttribute('address', $subscriber->getAddress());
+            $xml->writeAttribute('zip_code', $subscriber->getZipCode());
+            $xml->writeAttribute('company', $subscriber->getCompany());
+            $xml->writeAttribute('status_activity', $subscriber->getStatus());
+            $xml->writeAttribute('status_activity_rewrite', $subscriber->getStatusActivityRewrite());
+            $xml->endElement();
+        }
         $xml->endElement();
 
         return $xml->flush();
