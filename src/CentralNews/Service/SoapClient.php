@@ -2,6 +2,8 @@
 
 namespace CentralNews\Service;
 
+use CentralNews\Exception\Exception;
+
 class SoapClient
 {
     const TOKEN = 'api_key';
@@ -23,7 +25,7 @@ class SoapClient
         $nuSoap->soap_defencoding = $this->getEncoding();
 
         if ($nuSoap->getError()) {
-            throw new Exception\Exception;
+            throw new Exception('SoapClient');
         }
 
         return $nuSoap;

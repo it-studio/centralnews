@@ -2,7 +2,7 @@
 
 namespace CentralNews\Model;
 
-use CentralNews\Exception;
+use CentralNews\Exception\InvalidArgumentException;
 use CentralNews\Service\Request;
 use CentralNews\Service\SoapClient;
 
@@ -68,7 +68,7 @@ abstract class Manager
                 call_user_func_array($this->$name, $arguments);
             }
         } else {
-            throw new Exception\InvalidArgumentException;
+            throw new InvalidArgumentException('Call undefined method');
         }
     }
 

@@ -53,7 +53,7 @@ class SubscriberManager extends Manager
     {
         $xml = $this->createXmlSubscribers($subscribers, $group, $options);
         $param = array(
-            'group_id' => $group->getId(),
+            'group_id' => (int) $group->getId(),
             'subscribers' => base64_encode($xml)
         );
 
@@ -234,7 +234,7 @@ class SubscriberManager extends Manager
 
         $xml->startElement("subscribers");
         $xml->writeAttribute('enable_update', isset($options['enable_update']) ? (bool) $options['enable_update'] : TRUE);
-        $xml->writeAttribute('group_id', (int) $group->getId());
+        //$xml->writeAttribute('group_id', (int) $group->getId());
 
         if ($group instanceof BaseSubscriberGroup && !$group->getId() && $group->getName()) {
             $xml->writeAttribute('subscriber_group_name', $group->getName());
@@ -253,6 +253,25 @@ class SubscriberManager extends Manager
             $xml->writeAttribute('status_activity_rewrite', $subscriber->getStatusActivityRewrite());
             $xml->endElement();
         }
+        $xml->endElement();
+
+        return $xml->flush();
+    }
+
+    /**
+     * @param SubscriberGroup $subscriber
+     * @return string
+     */
+    protected function createXmlSubscriberGroup(SubscriberGroup $subscriber)
+    {
+        $xml = new \XMLWriter();
+        $xml->openMemory();
+        $xml->startDocument('1.0', 'UTF-8');
+        $xml->startElement("groups");
+        $xml->startElement("group");
+        $xml->writeAttribute('name', $subscriber->getName());
+        $xml->writeAttribute('description', $subscriber->getDescription());
+        $xml->endElement();
         $xml->endElement();
 
         return $xml->flush();
