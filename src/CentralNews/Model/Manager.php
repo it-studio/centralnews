@@ -11,6 +11,12 @@ abstract class Manager
     /** @var \CentralNews\Service\SoapClient */
     protected $soapClient;
 
+    /** @var \CentralNews\Service\Request */
+    protected $lastRequest;
+
+    /** @var \CentralNews\Service\Response */
+    protected $lastResponse;
+
     /**
      * @param \CentralNews\Service\SoapClient $soapClient
      */
@@ -25,7 +31,26 @@ abstract class Manager
      */
     public function sendRequest(Request $request)
     {
-        return $this->soapClient->sendRequest($request);
+        $this->lastRequest = $request;
+        $response = $this->soapClient->sendRequest($request);
+        $this->lastResponse = $response;
+        return $response;
+    }
+
+    /**
+     * @return \CentralNews\Service\Request|null
+     */
+    public function getLastRequest()
+    {
+        return $this->lastRequest;
+    }
+
+    /**
+     * @return \CentralNews\Service\Response|null
+     */
+    public function getLastResponse()
+    {
+        return $this->lastResponse;
     }
 
     /**
