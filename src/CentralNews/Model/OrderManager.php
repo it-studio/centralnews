@@ -3,8 +3,8 @@
 namespace CentralNews\Model;
 
 use CentralNews\Entity\Order;
-use CentralNews\Entity\SubscriberGroup;
-use CentralNews\Exception\InvalidArgumentException;
+use CentralNews\Entity\ISubscriberGroup;
+use CentralNews\Exception\DomainException;
 
 class OrderManager extends Manager
 {
@@ -13,14 +13,14 @@ class OrderManager extends Manager
 
     /**
      * @param \CentralNews\Entity\Order[] $orders
-     * @param \CentralNews\Entity\SubscriberGroup $group
+     * @param \CentralNews\Entity\ISubscriberGroup $group
      * @return bool
-     * @throws \CentralNews\Exception\InvalidArgumentException
+     * @throws \CentralNews\Exception\DomainException
      */
-    public function importOrders(array $orders, SubscriberGroup $group)
+    public function importOrders(array $orders, ISubscriberGroup $group)
     {
         if (!$group->getId()) {
-            throw new InvalidArgumentException;
+            throw new DomainException('Group ID is not set');
         }
         $xmlOrders = $this->createOrdersXml($orders);
 
@@ -32,16 +32,17 @@ class OrderManager extends Manager
         $request = new \CentralNews\Service\Request('import_orders', $data, '', '');
         $response = $this->sendRequest($request);
         $this->onImportedOrders($this, $response);
-        return $response->getStatus() == 'success';
+
+        return $response->isSuccess();
     }
 
     /**
      * @param \CentralNews\Entity\Order $order
-     * @param \CentralNews\Entity\SubscriberGroup $group
+     * @param \CentralNews\Entity\ISubscriberGroup $group
      * @return bool
-     * @throws \CentralNews\Exception\InvalidArgumentException
+     * @throws \CentralNews\Exception\DomainException
      */
-    public function importOrder(Order $order, SubscriberGroup $group)
+    public function importOrder(Order $order, ISubscriberGroup $group)
     {
         return $this->importOrders(array($order), $group);
     }
