@@ -9,6 +9,10 @@
         {
             "name": "Petr Gala",
             "email": "gala@itstudio.cz"
+        },
+        {
+            "name": "Milan Otáhal",
+            "email": "otahal@itstudio.cz"
         }
     ],
     "require": {
