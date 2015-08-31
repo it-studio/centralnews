@@ -59,13 +59,15 @@ abstract class Manager
      */
     public function __call($name, $arguments)
     {
-        if (property_exists($this, $name) && !empty($this->$name)) {
-            if (is_array($this->$name)) {
-                foreach ($this->$name as $key => $callback) {
-                    call_user_func_array($callback, $arguments);
+        if (property_exists($this, $name)) {
+            if (!empty($this->$name)) {
+                if (is_array($this->$name)) {
+                    foreach ($this->$name as $key => $callback) {
+                        call_user_func_array($callback, $arguments);
+                    }
+                } else {
+                    call_user_func_array($this->$name, $arguments);
                 }
-            } else {
-                call_user_func_array($this->$name, $arguments);
             }
         } else {
             throw new InvalidArgumentException('Call undefined method');
