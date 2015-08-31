@@ -7,7 +7,8 @@ use CentralNews\Entity\Subscriber;
 use CentralNews\Entity\SubscriberGroup;
 use CentralNews\Entity\ISubscriberGroup;
 use CentralNews\Entity\BaseSubscriberGroup;
-use CentralNews\Exception;
+use CentralNews\Exception\Exception;
+use CentralNews\Exception\InvalidArgumentException;
 
 class SubscriberManager extends Manager
 {
@@ -29,13 +30,14 @@ class SubscriberManager extends Manager
 
         $request = new Request('delete_subscriber', $param, '', '');
         $response = $this->sendRequest($request);
-        return $response->getStatus() == 'success';
+        return $response->isSuccess();
     }
 
     /**
      * Aktualizuje udaje o uzivateli v CN. Pokud neexistuje, vytvori se.
-     * @param Subscriber $subscriber
-     * @return \CentralNews\Service\Response
+     * @param \CentralNews\Entity\Subscriber $subscriber
+     * @param \CentralNews\Entity\ISubscriberGroup $group
+     * @return bool
      */
     public function saveSubscriber(Subscriber $subscriber, ISubscriberGroup $group)
     {
@@ -43,11 +45,10 @@ class SubscriberManager extends Manager
     }
 
     /**
-     * 
-     * @param array $subscribers
-     * @param ISubscriberGroup $group
+     * @param \CentralNews\Entity\Subscriber[] $subscribers
+     * @param \CentralNews\Entity\ISubscriberGroup $group
      * @param array $options
-     * @return type
+     * @return bool
      */
     public function saveSubscribers(array $subscribers, ISubscriberGroup $group, array $options = array())
     {
@@ -60,48 +61,54 @@ class SubscriberManager extends Manager
         $request = new Request('import_subscribers', $param, '', '');
         $response = $this->sendRequest($request);
 
-        return $response->getStatus() == 'success';
+        return $response->isSuccess();
     }
 
+    /**
+     * @param \CentralNews\Entity\Subscriber[] $subscribers
+     * @param \CentralNews\Entity\ISubscriberGroup $group
+     * @return bool
+     */
     public function importSubscribers(array $subscribers, ISubscriberGroup $group)
     {
         return $this->saveSubscribers($subscribers, $group, array('enable_update' => false));
     }
 
+    /**
+     * @param \CentralNews\Entity\Subscriber $subscriber
+     * @param \CentralNews\Entity\ISubscriberGroup $group
+     * @return bool
+     */
     public function importSubscriber(Subscriber $subscriber, ISubscriberGroup $group)
     {
         return $this->importSubscribers(array($subscriber), $group);
     }
 
     /**
-     * @throws \Exception
-     * @return \CentralNews\Entity\BaseSubscriberGroup[]
+     * @return \CentralNews\Entity\BaseSubscriberGroup[]|false
      */
     public function loadGroups()
     {
-        $groups = array();
-
-        $request = new \CentralNews\Service\Request('get_subscriber_groups', array(), '', '');
+        $request = new Request('get_subscriber_groups', array(), '', '');
         $response = $this->sendRequest($request);
 
-        $xml = $response->getResult();
-        if ($xml instanceof \SimpleXMLElement) {
-
-            foreach ($xml->groups[0]->group as $group) {
-                $attr = $group->attributes();
-                $id = (int) $attr->id;
-                $name = (string) $attr->name;
-                $groups[$id] = new BaseSubscriberGroup(array('id' => $id, 'name' => $name));
-            }
-
-            return $groups;
-        } else {
-            throw new \Exception(gettext("chyba při parsování seznamu skupin"));
+        if (!$response->isSuccess()) {
+            return false;
         }
+
+        $groups = array();
+        foreach ($response->getResult()->groups[0]->group as $group) {
+            $attr = $group->attributes();
+            $id = (int) $attr->id;
+            $name = (string) $attr->name;
+            $groups[$id] = new BaseSubscriberGroup(array('id' => $id, 'name' => $name));
+        }
+
+        return $groups;
     }
 
     /**
-     * @return \CentralNews\Entity\BaseSubscriberGroup[]
+     * @return \CentralNews\Entity\BaseSubscriberGroup[]|false
      */
     public function getGroups()
     {
@@ -114,41 +121,46 @@ class SubscriberManager extends Manager
     /**
      * @param \CentralNews\Entity\ISubscriberGroup|null $group
      * @throws \CentralNews\Exception\InvalidArgumentException
-     * @return int
+     * @return int|false
      */
     public function getSubscribersCount(ISubscriberGroup $group = null)
     {
         $data = array();
         if ($group) {
             if (!$group->getId()) {
-                throw new Exception\InvalidArgumentException;
+                throw new InvalidArgumentException('Invalid Group ID');
             }
             $data['group_id'] = $group->getId();
         }
 
-        $request = new \CentralNews\Service\Request('get_subscribers_count', $data, '', '');
+        $request = new Request('get_subscribers_count', $data, '', '');
         $response = $this->sendRequest($request);
 
-        return (int) $response->getResult()->count->attributes()->count;
+        return $response->isSuccess() ? (int) $response->getResult()->count->attributes()->count : false;
     }
 
     /**
      * @param \CentralNews\Entity\ISubscriberGroup|null $group
      * @throws \CentralNews\Exception\InvalidArgumentException
-     * @return array
+     * @return array|false
      */
     public function getSubscriberFields(ISubscriberGroup $group = null)
     {
         $data = array();
         if ($group) {
             if (!$group->getId()) {
-                throw new Exception\InvalidArgumentException;
+                throw new InvalidArgumentException('Invalid Group ID');
             }
             $data['group_id'] = $group->getId();
         }
 
-        $request = new \CentralNews\Service\Request('get_subscriber_fields', $data, '', '');
+        $request = new Request('get_subscriber_fields', $data, '', '');
         $response = $this->sendRequest($request);
+
+        if (!$response->isSuccess()) {
+            return false;
+        }
+
         $out = array();
         foreach ($response->getResult()->subscriberField->attributes() as $attrName => $attrVal) {
             $out[$attrName] = (string) $attrVal;
@@ -163,7 +175,7 @@ class SubscriberManager extends Manager
         $data = array();
         if ($group) {
             if (!$group->getId()) {
-                throw new Exception\InvalidArgumentException;
+                throw new InvalidArgumentException('Invalid Group ID');
             }
             $data['group_id'] = $group->getId();
         }
@@ -172,8 +184,8 @@ class SubscriberManager extends Manager
         $request = new \CentralNews\Service\Request('get_subscriber', $data, '', '');
         $response = $this->sendRequest($request);
 
-        if ($response->getStatus() == 'error') {
-            return FALSE;
+        if ($response->isSuccess()) {
+            return false;
         }
 
         // pocet vyslednych skupin: $xml->groups->attributes()->count
@@ -198,7 +210,7 @@ class SubscriberManager extends Manager
 
     /**
      * @param \CentralNews\Entity\SubscriberGroup $group
-     * @return BaseSubscriberGroup
+     * @return BaseSubscriberGroup|false
      */
     public function addGroup(SubscriberGroup $group)
     {
@@ -211,6 +223,10 @@ class SubscriberManager extends Manager
 
         $request = new \CentralNews\Service\Request('add_subscriber_groups', $data, '', '');
         $response = $this->sendRequest($request);
+
+        if (!$response->isSuccess()) {
+            return false;
+        }
 
         // pocet vyslednych skupin> $xml->groups->attributes()->count
         $out = array();
@@ -234,7 +250,6 @@ class SubscriberManager extends Manager
 
         $xml->startElement("subscribers");
         $xml->writeAttribute('enable_update', isset($options['enable_update']) ? (bool) $options['enable_update'] : TRUE);
-        //$xml->writeAttribute('group_id', (int) $group->getId());
 
         if ($group instanceof BaseSubscriberGroup && !$group->getId() && $group->getName()) {
             $xml->writeAttribute('subscriber_group_name', $group->getName());
