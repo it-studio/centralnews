@@ -98,18 +98,6 @@ $lostCart->addProduct($product);
 $eventManager->callLostCart($lostCart);
 ```
 
-## Událost - opuštěný košík
-```php
-$eventManager = $client->getEventManager();
-$lostCart = new \CentralNews\Entity\LostCart();
-$lostCart->setEmail($email);
-$product = new CentralNews\Entity\Product();
-$product->setName('product name');
-$product->setPrice(100);
-$lostCart->addProduct($product);
-$eventManager->callLostCart($lostCart);
-```
-
 ## Odeslání vlastního požadavku
 ```php
 $manager = $client->getManager();
