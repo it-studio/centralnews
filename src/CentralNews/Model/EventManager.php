@@ -4,35 +4,72 @@ namespace CentralNews\Model;
 
 use CentralNews\Entity\LostCart;
 use CentralNews\Entity\Discount;
+use CentralNews\Service\Request;
 
-class LostCartManager extends Manager
+class EventManager extends Manager
 {
-    const BUY_TEXT = 'Koupit';
+    /** @var bool */
+    protected $debugMode = false;
 
-    protected $debug = false;
+    /** @var string */
+    protected $buyText = 'Koupit';
 
-    public function sendCart(LostCart $lostCart)
+    /**
+     * @param bool $debugMode
+     */
+    public function setDebugMode($debugMode = false)
     {
-        $orderXml = $this->getXml($lostCart);
-        $encodedXmlData = base64_encode($orderXml);
+        $this->debugMode = (bool) $debugMode;
+    }
 
-        $timestamp = null;
-        if ($this->getDebug()) {
-            $timestamp = microtime();
-        }
+    /**
+     * @param string $buyText
+     */
+    public function setBuyText($buyText)
+    {
+        $this->buyText = (string) $buyText;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBuyText()
+    {
+        return $this->buyText;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDebugMode()
+    {
+        return $this->debugMode;
+    }
+
+    /**
+     * @param \CentralNews\Entity\LostCart $lostCart
+     * @return bool
+     */
+    public function callLostCart(LostCart $lostCart, $idenrificator = null)
+    {
+        $orderXml = $this->getXmlLostCart($lostCart);
+        $code = $idenrificator ? $idenrificator : $lostCart->getEmail() . '-' . date("d.m.Y");
 
         $param = array(
             'email' => $lostCart->getEmail(),
-            'content' => $encodedXmlData,
+            'content' => base64_encode($orderXml),
             'event' => 'lost_carts',
-            'code' => $lostCart->getEmail() . '-' . date("d.m.Y") . $timestamp,
+            'code' => $code . ($this->isDebugMode() ? '#' . microtime() : ''),
+            'bulk' => '',
         );
 
-        $request = new \CentralNews\Service\Request('user_event', $param, '', '');
-        return $this->sendRequest($request);
+        $request = new Request('user_event', $param, '', '');
+        $response = $this->sendRequest($request);
+
+        return $response->isSuccess();
     }
 
-    protected function getXml(LostCart $lostCart)
+    protected function getXmlLostCart(LostCart $lostCart)
     {
         $xml = new \XMLWriter();
         $xml->openMemory();
@@ -82,7 +119,7 @@ class LostCartManager extends Manager
             $xml->endElement();
 
             $xml->startElement("buy-text");
-            $xml->writeCData(self::BUY_TEXT);
+            $xml->writeCData($this->getBuyText());
             $xml->endElement();
 
             $xml->endElement();
@@ -93,22 +130,6 @@ class LostCartManager extends Manager
         $xml->endDocument();
 
         return $xml->flush();
-    }
-
-    protected function dayToDate($day)
-    {
-        return strftime('%d.%m.%Y', time() + ($day * 86400));
-    }
-
-    public function getDebug()
-    {
-        return $this->debug;
-    }
-
-    public function setDebug($debug)
-    {
-        $this->debug = $debug;
-        return $this;
     }
 
 }

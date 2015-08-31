@@ -18,6 +18,9 @@ class Client
     /** @var \CentralNews\Model\OrderManager */
     protected $orderManager;
 
+    /** @var \CentralNews\Model\EventManager */
+    protected $eventManager;
+
     /** @var array */
     protected $params;
 
@@ -27,6 +30,9 @@ class Client
     /** @var array */
     protected $headers;
 
+    /**
+     * @param array $params
+     */
     public function __construct(array $params)
     {
         $this->params = $params;
@@ -108,6 +114,25 @@ class Client
     }
 
     /**
+     * @return \CentralNews\Model\EventManager
+     */
+    public function getEventManager()
+    {
+        if (!$this->eventManager) {
+            $this->eventManager = $this->createEventManager();
+        }
+        return $this->eventManager;
+    }
+
+    /**
+     * @return \CentralNews\Model\EventManager
+     */
+    protected function createEventManager()
+    {
+        return new \CentralNews\Model\EventManager($this->soapClient);
+    }
+
+    /**
      * @return \CentralNews\Entity\SubscriberGroup[]
      */
     public function getSubscribersGroups()
@@ -119,6 +144,20 @@ class Client
     public function setHeaders(array $headers)
     {
         $this->headers = $headers;
+    }
+
+    /**
+     * @param string $email
+     * @return bool
+     */
+    public static function isEmail($email)
+    {
+        $atom = "[-a-z0-9!#$%&'*+/=?^_`{|}~]";
+        $localPart = "(?:\"(?:[ !\\x23-\\x5B\\x5D-\\x7E]*|\\\\[ -~])+\"|$atom+(?:\\.$atom+)*)";
+        $alpha = "a-z\x80-\xFF";
+        $domain = "[0-9$alpha](?:[-0-9$alpha]{0,61}[0-9$alpha])?";
+        $topDomain = "[$alpha](?:[-0-9$alpha]{0,17}[$alpha])?";
+        return (bool) preg_match("(^$localPart@(?:$domain\\.)+$topDomain\\z)i", $email);
     }
 
 }
