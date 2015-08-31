@@ -42,13 +42,14 @@ $subscriberManager = $client->getSubscriberManager();
 $groups = $subscriberManager->getGroups();
 ```
 
-## Počet všech odběratelů
+## Počet odběratelů
+- počet všech
 ```php
 $subscriberManager = $client->getSubscriberManager();
 $count = $subscriberManager->getSubscribersCount();
 ```
 
-## Počet odběratelů dané skupiny
+- počet ve skupině
 ```php
 $subscriberManager = $client->getSubscriberManager();
 $group = new \CentralNews\Entity\Group($groupId);
@@ -60,6 +61,20 @@ $count = $subscriberManager->getSubscribersCount($group);
 $group = new \CentralNews\Entity\Group($groupId);
 $subscriberManager = $client->getSubscriberManager();
 $subscriber = $subscriberManager->getSubscriber($email, $group);
+```
+
+## Položky odběratele
+- všechny
+```php
+$subscriberManager = $client->getSubscriberManager();
+$data = $subscriberManager->getSubscriberFields();
+```
+
+- ve skupině
+```php
+$subscriberManager = $client->getSubscriberManager();
+$group = new \CentralNews\Entity\Group($groupId);
+$data = $subscriberManager->getSubscriberFields($group);
 ```
 
 ## Vymazání odběratele ze skupiny
