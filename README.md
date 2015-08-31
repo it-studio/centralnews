@@ -69,7 +69,8 @@ $subscriberManager = $client->getSubscriberManager();
 $subscriberManager->deleteSubscriber($email, $group);
 ```
 
-## Přidání odběratelů - když existují, aktualizují se jejich údaje
+## Přidání odběratelů
+- když existují, aktualizují se jejich údaje
 ```php
 $subscribers[] = new CentralNews\Entity\Subscriber($email);
 $group = new CentralNews\Entity\Group($groupId);
@@ -77,7 +78,7 @@ $subscriberManager = $client->getSubscriberManager();
 $subscriberManager->saveSubscribers($subscribers, $group);
 ```
 
-## Přidání odběratelů - když existují, přeskočí se
+- když odběratel existuje, přeskočí se (neaktualizuje se)
 ```php
 $subscribers[] = new CentralNews\Entity\Subscriber($email);
 $group = new CentralNews\Entity\Group($groupId);
@@ -85,3 +86,14 @@ $subscriberManager = $client->getSubscriberManager();
 $subscriberManager->importSubscribers($subscribers, $group);
 ```
 
+## Událost - opuštěný košík
+```php
+$eventManager = $client->getEventManager();
+$lostCart = new \CentralNews\Entity\LostCart();
+$lostCart->setEmail($email);
+$product = new CentralNews\Entity\Product();
+$product->setName('product name');
+$product->setPrice(100);
+$lostCart->addProduct($product);
+$eventManager->callLostCart($lostCart);
+```
