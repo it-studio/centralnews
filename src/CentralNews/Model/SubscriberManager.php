@@ -215,10 +215,9 @@ class SubscriberManager extends Manager
     public function addGroup(SubscriberGroup $group)
     {
         $xmlData = $this->createXmlSubscriberGroup($group);
-        $encodedXmlData = base64_encode($xmlData);
 
         $data = array(
-            'groups' => $encodedXmlData
+            'groups' => base64_encode($xmlData)
         );
 
         $request = new \CentralNews\Service\Request('add_subscriber_groups', $data, '', '');
