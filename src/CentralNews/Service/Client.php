@@ -21,6 +21,9 @@ class Client
     /** @var \CentralNews\Model\EventManager */
     protected $eventManager;
 
+    /** @var \CentralNews\Model\Manager */
+    protected $manager;
+
     /** @var array */
     protected $params;
 
@@ -133,12 +136,31 @@ class Client
     }
 
     /**
-     * @return \CentralNews\Entity\SubscriberGroup[]
+     * @return \CentralNews\Model\Manager
      */
-    public function getSubscribersGroups()
+    public function getManager()
     {
-        $manager = $this->getSubscriberManager();
-        return $manager->getGroups();
+        if (!$this->manager) {
+            $this->manager = $this->createManager();
+        }
+        return $this->manager;
+    }
+
+    /**
+     * @return \CentralNews\Model\Manager
+     */
+    protected function createManager()
+    {
+        return new \CentralNews\Model\Manager($this->soapClient);
+    }
+
+    /**
+     * @param \CentralNews\Service\Request $request
+     * @return \CentralNews\Service\Response
+     */
+    public function sendRequest(Request $request)
+    {
+        return $this->getManager()->sendRequest($request);
     }
 
     public function setHeaders(array $headers)

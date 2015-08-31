@@ -6,7 +6,7 @@ use CentralNews\Exception\InvalidArgumentException;
 use CentralNews\Service\Request;
 use CentralNews\Service\SoapClient;
 
-abstract class Manager
+class Manager
 {
     /** @var \CentralNews\Service\SoapClient */
     protected $soapClient;
