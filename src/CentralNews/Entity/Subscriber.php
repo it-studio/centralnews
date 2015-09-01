@@ -3,6 +3,8 @@
 namespace CentralNews\Entity;
 
 use CentralNews\Exception\InvalidArgumentException;
+use CentralNews\Exception\DomainException;
+use CentralNews\Service\Client;
 
 class Subscriber
 {
@@ -10,7 +12,11 @@ class Subscriber
     const LOGOUT = 'odhlaseny';
     const INVALID_EMAIL = 'chybny_email';
 
-    protected $email = "";
+    /** @var string */
+    protected $email;
+
+    /** @var string */
+    protected $phone;
     protected $firstname = null;
     protected $surname = null;
     protected $city = null;
@@ -21,16 +27,23 @@ class Subscriber
     protected $statusActivity = null;
     protected $statusActivityRewrite = null;
     protected $statusConfirmation;
-    
+
     /** @var string */
     protected $status;
 
-    public function __construct($email)
+    /**
+     * @param string $data
+     * @throws InvalidArgumentException
+     */
+    public function __construct($data = null)
     {
-        if (empty($email)) {
-            throw new InvalidArgumentException;
+        if ($data) {
+            if (Client::isEmail($data)) {
+                $this->setEmail($data);
+            } else {
+                throw new InvalidArgumentException('Invalid email');
+            }
         }
-        $this->setEmail($email);
     }
 
     public static function createFromXml(SimpleXMLElement $simpleXmlData)
@@ -87,14 +100,37 @@ class Subscriber
         return $subscriber;
     }
 
-    public function getEmail()
+    public function getEmail($throw = true)
     {
+        if (!$this->email && $throw) {
+            throw new DomainException('Email is not set');
+        }
         return $this->email;
     }
 
     public function setEmail($email)
     {
+        if (!Client::isEmail($email)) {
+            throw new InvalidArgumentException('Invalid email');
+        }
         $this->email = $email;
+        return $this;
+    }
+
+    public function getPhone($throw = true)
+    {
+        if (!$this->phone && $throw) {
+            throw new DomainException('Phone is not set');
+        }
+        return $this->phone;
+    }
+
+    public function setPhone($phone)
+    {
+        if (!$phone) {
+            throw new InvalidArgumentException('Invalid phone');
+        }
+        $this->phone = $phone;
         return $this;
     }
 
@@ -220,7 +256,17 @@ class Subscriber
         } else {
             throw new InvalidArgumentException('Invalid status');
         }
-  
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isValid()
+    {
+        if (!$this->getEmail(false) && !$this->getPhone(false)) {
+            return false;
+        }
+        return true;
     }
 
 }
