@@ -184,7 +184,7 @@ class SubscriberManager extends Manager
         $request = new \CentralNews\Service\Request('get_subscriber', $data, '', '');
         $response = $this->sendRequest($request);
 
-        if ($response->isSuccess()) {
+        if (!$response->isSuccess()) {
             return false;
         }
 
