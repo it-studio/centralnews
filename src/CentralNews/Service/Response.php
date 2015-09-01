@@ -3,6 +3,8 @@
 namespace CentralNews\Service;
 
 use CentralNews\Entity\Subscriber;
+use CentralNews\Exception\Exception;
+use CentralNews\Exception\InvalidArgumentException;
 
 class Response
 {
@@ -19,13 +21,10 @@ class Response
     public function __construct($rawResponse)
     {
         if (is_array($rawResponse)) {
-
             $this->setStatus(self::STATUS_ERROR);
             $this->setMessage($rawResponse['faultstring']);
-
-            throw new \Exception($rawResponse['faultstring']);
+            throw new Exception($rawResponse['faultstring']);
         } elseif (!empty($rawResponse)) {
-
             try {
                 $xml = new \SimpleXMLElement(base64_decode($rawResponse));
 
@@ -36,10 +35,10 @@ class Response
 
                 $this->parseErrors($xml->errors[0]);
             } catch (\Exception $e) {
-                throw new \Exception("chyba při parsování odpovědi");
+                throw new InvalidArgumentException("Invalid XML response", null, $e);
             }
         } else {
-            throw new \Exception("z CentralNews nedorazila odpověď");
+            throw new InvalidArgumentException("Empty XML response");
         }
     }
 
