@@ -9,13 +9,13 @@ class Product
     protected $manufacturer;
     protected $maincategory;
     protected $price;
-    protected $priceSum;
     protected $count;
     protected $url;
     protected $image;
     protected $description;
     protected $priceOld;
     protected $sale;
+    protected $heurekaItemId;
 
     public function getId()
     {
@@ -69,17 +69,6 @@ class Product
     public function setPrice($price)
     {
         $this->price = $price;
-        return $this;
-    }
-
-    public function getPriceSum()
-    {
-        return $this->priceSum;
-    }
-
-    public function setPriceSum($priceSum)
-    {
-        $this->priceSum = $priceSum;
         return $this;
     }
 
@@ -148,5 +137,17 @@ class Product
         $this->sale = $sale;
         return $this;
     }
+    
+    public function getHeurekaItemId() 
+    {
+        return $this->heurekaItemId;
+    }
+
+    public function setHeurekaItemId($heurekaItemId) 
+    {
+        $this->heurekaItemId = $heurekaItemId;
+    }
+
+
 
 }

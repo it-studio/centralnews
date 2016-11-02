@@ -86,7 +86,7 @@ class OrderManager extends Manager
             foreach ($order->getOrderProducts() as $product) {
                 $productNode = $xml->createElement("product");
 
-                $id = $xml->createElement("id");
+                $id = $xml->createElement("number");
                 $id->appendChild($xml->createCDATASection($product->getId()));
                 $productNode->appendChild($id);
 
@@ -106,14 +106,14 @@ class OrderManager extends Manager
                 $price->appendChild($xml->createCDATASection($product->getPrice()));
                 $productNode->appendChild($price);
 
-                $priceSum = $xml->createElement("price_sum");
-                $priceSum->appendChild($xml->createCDATASection($product->getPriceSum()));
-                $productNode->appendChild($priceSum);
-
                 $count = $xml->createElement("count");
                 $count->appendChild($xml->createCDATASection($product->getCount()));
                 $productNode->appendChild($count);
 
+                $heurekaItemId = $xml->createElement("heureka_item_id");
+                $heurekaItemId->appendChild($xml->createCDATASection($product->getHeurekaItemId()));
+                $productNode->appendChild($heurekaItemId);
+                
                 $products->appendChild($productNode);
             }
             $element->appendChild($products);
