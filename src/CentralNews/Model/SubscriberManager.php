@@ -195,14 +195,14 @@ class SubscriberManager extends Manager
         }
         /** @todo getSubscriberFields + subscriberObject */
         $map = array(
-            'email' => $out['SUBSCRIBER_EMAIL'],
-            'firstname' => $out['SUBSCRIBER_FIRSTNAME'],
-            'status_activity' => $out['status_activity'],
-            'status_confirmation' => $out['status_confirmation'],
-            'surname' => $out['SUBSCRIBER_SURNAME'],
-            'city' => $out['SUBSCRIBER_CITY'],
-            'gender' => $out['SUBSCRIBER_GENDER'],
-            'main_order' => $out['SUBSCRIBER_MAIN_ORDER'],
+            'email' => \array_key_exists('SUBSCRIBER_EMAIL', $out) ? $out['SUBSCRIBER_EMAIL'] : NULL,
+            'firstname' => \array_key_exists('SUBSCRIBER_FIRSTNAME', $out) ? $out['SUBSCRIBER_FIRSTNAME'] : NULL,
+            'status_activity' => \array_key_exists('status_activity', $out) ? $out['status_activity'] : NULL,
+            'status_confirmation' => \array_key_exists('status_confirmation', $out) ? $out['status_confirmation'] : NULL,
+            'surname' => \array_key_exists('SUBSCRIBER_SURNAME', $out) ? $out['SUBSCRIBER_SURNAME'] : NULL,
+            'city' => \array_key_exists('SUBSCRIBER_CITY', $out) ? $out['SUBSCRIBER_CITY'] : NULL,
+            'gender' => \array_key_exists('SUBSCRIBER_GENDER', $out) ? $out['SUBSCRIBER_GENDER'] : NULL,
+            'main_order' => \array_key_exists('SUBSCRIBER_MAIN_ORDER', $out) ? $out['SUBSCRIBER_MAIN_ORDER'] : NULL,
         );
 
         return !empty($out) ? Subscriber::fromArray($map) : false;
